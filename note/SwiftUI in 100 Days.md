@@ -63,7 +63,18 @@
   1. 因为swift已经知道sorted by：会传入两个数组对应的数据类型并丢出一个bool，所以(a: String, b: String) -> Bool in...可以简写成a, b in...
   2. 当调用sorted等函数时，可以用尾随闭包法：删掉(by：...)
   3. swift其实并不关心变量名叫什么，只关心数据类型是什么，有几个，所以变量可以写成$0、$1，同时去掉in关键词。
-- 一般三种情况不考虑使用闭包：
+- 一般三种情况不考虑使用$0 $1的变量简写形式：
   1. 参数在两个以上 $0 $1 $2 $3
   2. 参数使用不止一次
   3. 闭包函数主体很长
+- swift中常用isMultiple(of: Int)来判断是不是一个数的倍数或者是否是奇偶数
+- for item in result {...} 通常用来循环打印数组 
+
+## Day10
+
+- 在创建结构体实体时，Employee(name: "intSur", vacationRemaining: 3) = Employee.init(name: "intSur", vacationRemaining: 3),这个init类似于c++的类的构造函数，一般来说不用加init就可以，这是一个语法糖。
+- struct一般分为两种属性：
+  1. 存储属性
+  2. 计算属性
+- 结构体的init：自定义初始化属性，类似于c++的类的构造函数
+

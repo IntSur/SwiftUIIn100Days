@@ -73,3 +73,83 @@ print(someHero.sorted {
 print(someHero.sorted{ $0 > $1 })
 print(someHero.filter{ $0.hasPrefix("S") })
 print(someHero.map{ $0.uppercased() })
+
+//3️⃣将函数作为函数参数传入函数中
+//1.写法一：相对完整
+func generator() -> Int {
+    Int.random(in: 1...10)
+}
+func makeArray(size: Int, using generator: () -> Int) -> [Int] {
+    var newArray = [Int]()
+    
+    for _ in 1...size {
+        newArray.append(generator())
+    }
+    
+    return newArray;
+}
+print(makeArray(size: 5, using: generator))
+
+//2.写法二：相对简单
+print(makeArray(size: 6) {
+    Int.random(in: 1...6)
+})
+
+//投骰子🎲案例
+func makeRandomArray(length: Int, using randomNum: () -> Int) -> [Int] {
+    var newArray = [Int]()
+    for _ in 1...length {
+        newArray.append(randomNum())
+    }
+    return newArray
+}
+
+let rollDices = makeRandomArray(length: 6) {
+    Int.random(in: 1...6)
+}
+
+print(rollDices)
+
+//4️⃣将 空参空返回值的函数 作为 参数 的 函数
+func doSomethingImportant(first: () -> Void, second: () -> Void, third: () -> Void) {
+    print("About to start first work")
+    first()
+    print("About to start first work")
+    second()
+    print("About to start first work")
+    third()
+    print("Done")
+}
+
+doSomethingImportant {
+    print("do first work")
+} second: {
+    print("do second work")
+} third: {
+    print("do third work")
+}
+
+
+//CheckPoint5📋
+let luckyNumbers = [7, 4, 38, 21, 16, 15, 12, 33, 31, 49]
+
+let result = luckyNumbers.filter{ $0.isMultiple(of: 2) == false }.sorted { $0 < $1 }.map{ "\($0) is a lucky number" }
+//数组循环打印方式1
+for item in result { print(item) }
+//数组循环打印方式2
+result.forEach{print($0)}
+
+//阅读性更好，可以重复使用的写法
+func isOdd(a: Int) -> Bool {
+    a.isMultiple(of: 2) == false
+}
+
+func translateToMapString(a: Int) -> String {
+    "\(a) is a lucky number."
+}
+
+func printItems(a: String) {
+    print(a)
+}
+
+luckyNumbers.filter(isOdd).sorted().map(translateToMapString).forEach(printItems)

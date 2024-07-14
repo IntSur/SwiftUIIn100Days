@@ -78,3 +78,19 @@
   2. 计算属性
 - 结构体的init：自定义初始化属性，类似于c++的类的构造函数
 
+## Day11
+
+- 给结构体的属性方法设置访问权限：
+
+  1. private：外部不能使用结构体内的东西
+  2. fileprivate：外部不能使用文件内的东西
+  3. public：所有人都能用
+  4. private(set)：外部能读取结构体内的东西，但不能写  
+
+- 结构体static：给结构体属性、方法加上static前缀关键词，那该属性、方法就成为静态可共享的成员，该结构体的所有实体都能用到它。同时也不用必须先创建实体，才能再访问到成员。所以不用mutating关键字，结构体内的static属性就能被修改。
+
+- static成员无法访问非static成员，非static成员可以访问static成员<img src="/Users/fan/Desktop/SwiftUIIn100Days/note/截屏2024-07-14 15.54.11.png" style="zoom: 25%;" />
+
+  <img src="/Users/fan/Desktop/SwiftUIIn100Days/note/截屏2024-07-14 15.55.01.png" alt="截屏2024-07-14 15.55.01" style="zoom:25%;" />
+
+- 结构体self和Self的区别：self一般用于调用结构体成员的数值，Self一般用于调用结构体成员的数据类型

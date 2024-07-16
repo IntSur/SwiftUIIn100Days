@@ -18,7 +18,7 @@ enum systemUI{
     case system
 }
 var usingUI = systemUI.light
-print(usingUI )
+print(usingUI)
 
 let names = ["John", "Terry", "Tom", "Steve", "Elon", "Steve"]
 var uniqeNames = Set(names)
@@ -31,6 +31,6 @@ var eArray2 = [String]()
 var eArray3: [String] = []
 
 var eSet1 = Set<Int>()
-var eSet2: Set<Int> = ([1,2,3])
+var eSet2: Set<Int> = ()
 
 var eDictionary:[Int: String] = [:]

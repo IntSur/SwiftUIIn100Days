@@ -1,6 +1,6 @@
 # **SwiftUI in 100 Days**
 
-## Day1:
+## Day1
 
 - 给变量/常量起名要使用驼峰法
 - 开发过程中尽量用let创建字符串、常量等，var会不经意间被修改。
@@ -8,20 +8,18 @@
 - 多行字符串需要使用三个双引号"""...."""
 - 因为计算机架构是2进制的，所以算0.1+0.2不是等于0.3，而是3.0000000004。这是不可避免的。
 
-## Day2:
+## Day2
 
 - 字符串之间用+拼接时，+两边的类型必须相等
 
-## Day3:
+## Day3
 
 - 不能将不同类型的数据放进同一个数组内
 - 常量数组sorted不会改变原数组，反而会生成下面一行的新数组。
 
-![](/Users/fan/Desktop/SwiftUI100Days/note/截屏2024-06-26 22.14.23.png)
+![截屏2024-06-26 22.14.23](/Users/fan/Desktop/SwiftUIIn100Days/note/SwiftUI in 100 Days.assets/截屏2024-06-26 22.14.23.png)
 
-- 常量数组reversed不会改变原数组，swift会记住原来的顺序，并生成一个倒序的新collection。
-
-![](/Users/fan/Desktop/SwiftUI100Days/note/截屏2024-06-26 22.13.43.png)
+- 常量数组reversed不会改变原数组，swift会记住原来的顺序，并生成一个倒序的新collection。![截屏2024-06-26 22.13.43](/Users/fan/Desktop/SwiftUIIn100Days/note/SwiftUI in 100 Days.assets/截屏2024-06-26 22.13.43.png)
 
 - 集合（set）和数组的区别：1.无序的 2.无重复元素
 - 所以集合不是append 而是用insert
@@ -89,8 +87,34 @@
 
 - 结构体static：给结构体属性、方法加上static前缀关键词，那该属性、方法就成为静态可共享的成员，该结构体的所有实体都能用到它。同时也不用必须先创建实体，才能再访问到成员。所以不用mutating关键字，结构体内的static属性就能被修改。
 
-- static成员无法访问非static成员，非static成员可以访问static成员<img src="/Users/fan/Desktop/SwiftUIIn100Days/note/截屏2024-07-14 15.54.11.png" style="zoom: 25%;" />
+- static成员无法访问非static成员，非static成员可以访问static成员![截屏2024-07-14 15.55.01](/Users/fan/Desktop/SwiftUIIn100Days/note/SwiftUI in 100 Days.assets/截屏2024-07-14 15.55.01.png)
 
-  <img src="/Users/fan/Desktop/SwiftUIIn100Days/note/截屏2024-07-14 15.55.01.png" alt="截屏2024-07-14 15.55.01" style="zoom:25%;" />
+  ![截屏2024-07-14 15.54.11](/Users/fan/Desktop/SwiftUIIn100Days/note/SwiftUI in 100 Days.assets/截屏2024-07-14 15.54.11.png)
 
 - 结构体self和Self的区别：self一般用于调用结构体成员的数值，Self一般用于调用结构体成员的数据类型
+
+## Day12
+
+- 类和结构体有五个区别：
+
+  1. 类可以继承，有子类父类。结构体就不行。
+  2. 类不会自动初始化。
+  3. 如果复制了一个类的实体，所有复制出来的数据都共享一份资源。
+  4. 当所有类的复制实体被销毁时，类允许通过初始化器，重新初始化。
+  5. 常量类实体的变量成员可以被改变。
+
+- override：只有在子类和父类方法名、参数返回值类型名称都完全相同的情况下重载才生效。
+
+- final：加在子类名前，意思是该子类不会有子类继承它。
+
+- Deinitializer：析构器
+
+  1. 析构器不需要用func关键字来声明
+  2. 析构器没有参数和返回值
+  3. 析构器在类的最后一个实体被销毁时自动启用
+  4. 我们从不直接调用析构器
+  5. 结构体没有析构
+
+- 有四种情况：类定实体定，类定实体不定，类不定实体定，类不定实体不定。
+
+  其实就是指针常量和常量指针的概念。所以class的特性是用指针去控制一块内存里的数据，而struct是直接控制一块内存里的数据。

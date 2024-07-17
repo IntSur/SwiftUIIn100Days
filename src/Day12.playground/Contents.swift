@@ -129,3 +129,57 @@ print(intsur.name)
 
 //有四种情况：类定实体定，类定实体不定，类不定实体定，类不定实体不定。
 //其实就是指针常量和常量指针的概念。所以class的特性是用指针去控制一块内存里的数据，而struct是直接控制一块内存里的数据。
+ 
+//CheckPoint7📋
+class Animal {
+    let leg: Int
+    init(leg: Int) {
+        self.leg = leg
+    }
+    
+    func speak() {
+        assertionFailure("This should nerver be called.")//断言：当代码执行到这一行，程序就会丢出错误，并终止执行。只在调试模式下生效，发布模式下这些断言会被移除。
+    }
+}
+
+class Dog: Animal {
+    override func speak() {
+        print("Barking...")
+    }
+}
+
+class Corgi: Dog {
+    override func speak() {
+        print("Corgi barking")
+    }
+}
+
+class Poodle: Dog {
+    override func speak() {
+        print("Poodle barking")
+    }
+}
+
+class Cat: Animal {
+    var isTame: Bool
+    init(leg: Int, isTame: Bool) {
+        self.isTame = isTame
+        super.init(leg: leg)
+    }
+    
+    override func speak() {
+        print("Meowing...")
+    }
+}
+
+class Persian: Cat {
+    override func speak() {
+        print("Persian meowing")
+    }
+}
+
+class Lion: Cat {
+    override func speak() {
+        print("Lion roaring")
+    }
+}

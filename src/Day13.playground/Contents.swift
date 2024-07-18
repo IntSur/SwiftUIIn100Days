@@ -70,3 +70,95 @@ func getRandomNum() -> some Equatable {
 }
 
 print(getRandomNum() == getRandomNum())
+
+//3️⃣拓展
+var quote = "  Stay hungry Stay foolish.   "
+extension String {
+    //会返回值
+    func trimmed() -> String {
+        self.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    //不会返回值
+    mutating func trim() {
+        self = self.trimmed()
+    }
+    //拓展里不能新增存储属性，但能新增计算属性。以下将分解出的组件字符串直接放入数组内
+    var lines: [String] {
+        self.components(separatedBy: .newlines)
+    }
+}
+print(quote.trimmed())
+print(quote) // trimmed不改变原字符串
+print(quote.trim())
+print(quote)// trim改变原字符串
+
+let somewords = """
+Line1
+Line2
+Line3
+Line4
+Line5
+"""
+print(somewords.lines)
+print(somewords.lines.count)
+
+//拓展能实现：即拥有完全自定义的初始化器，又能使用swift自带的聪明的初始化器。
+struct Book {
+    let bookName: String
+    let pages: Int
+    var readHours: Int
+}
+
+extension Book {//把初始化器放到拓展里
+    init(bookName: String, pages: Int) {
+        self.bookName = bookName
+        self.pages = pages
+        self.readHours = pages / 50
+    }
+}
+
+//即拥有完全自定义的初始化器
+let book1 = Book(bookName: "Steve Jobs", pages: 200)
+//又能使用swift自带的聪明的初始化器
+let book2 = Book(bookName: "Elon Musk", pages:100, readHours: 25)
+print(book1)
+print(book2)
+
+//4️⃣协议+拓展
+extension Collection { //set、array、dictionary在swift中都属于一个名为“Collection”的协议
+    var isNotEmpty: Bool{
+        isEmpty == false
+    }
+}
+
+let array1 = [1, 2, 3]
+if array1.isNotEmpty {
+    print("Array's length is \(array1.count)")
+}
+
+protocol Person {
+    var name: String { get set }
+    func sayHello()//结构体里的空函数
+}
+
+extension Person {
+    func sayHello() {//设定空函数的默认值,用法类似于上面即可以用自定义的初始化器，又可以用swift的初始化器
+        print("Hi, I'm \(name)")
+    }
+}
+
+//新建的结构体可以不写该函数
+struct Creator: Person {
+    var name: String
+}
+let Elon = Creator(name: "Elon Musk")
+Elon.sayHello()
+
+struct Designer: Person {
+    var name: String
+    func sayHello() {
+        print("Less is more.")
+    }
+}
+let Steve = Designer(name: "Steve Jobs")
+Steve.sayHello()

@@ -1,6 +1,6 @@
 import Cocoa
 
-//1️⃣创建一个协议基类
+//1️⃣创建一个协议
 protocol Vehicle {
     var name: String { get }// 协议的属性必须指明{ get } { get set }
     var seats: Int { get set }
@@ -142,7 +142,7 @@ protocol Person {
 }
 
 extension Person {
-    func sayHello() {//设定空函数的默认值,用法类似于上面即可以用自定义的初始化器，又可以用swift的初始化器
+    func sayHello() {//设定空函数的默认值,写法类似于上面即可以用自定义的初始化器，又可以用swift的初始化器
         print("Hi, I'm \(name)")
     }
 }
@@ -162,3 +162,63 @@ struct Designer: Person {
 }
 let Steve = Designer(name: "Steve Jobs")
 Steve.sayHello()
+
+//CheckPoint8📋
+protocol Building {
+    var type: String { get }
+    var rooms: Int { get }
+    var cost: Int { get }
+    var estateAgent: String { get }
+}
+
+extension Building {
+    func salesSummary() {
+        print("Contact to \(estateAgent) to buy \(type).")
+    }
+}
+
+struct House: Building {
+    let type = "House"
+    var rooms: Int
+    var cost: Int
+    var estateAgent: String
+}
+
+struct Office: Building {
+    let type = "Office"
+    var rooms: Int
+    var cost: Int
+    var estateAgent: String
+}
+
+let house1 = House(rooms: 10, cost: 100_000, estateAgent: "HengDa")
+house1.salesSummary()
+
+let office1 = Office(rooms: 100, cost: 100_000_000, estateAgent: "Wanda")
+office1.salesSummary()
+
+//协议拓展是一个swifty的语法，甚至有面向协议编程，所以以下是进阶内容
+//1.返回自身类型
+extension Numeric {
+    func square() -> Self { //这么写：所有的算数类型都能用这个拓展
+        self * self
+    }
+}
+
+//2.Equatable、Comparable协议
+struct User: Equatable, Comparable {// 这行也可以直接写成struct User: Comparable,因为Comparable就已经包含了Equatable
+    let name: String
+    static func <(lsh: User, rsh: User) -> Bool {
+        lsh.name < rsh.name
+    }
+}
+
+let user1 = User(name: "Steve")
+let user2 = User(name: "Elon")
+
+print(user1 == user2)
+print(user1 != user2)
+print(user1 < user2)
+print(user1 <= user2)
+print(user1 > user2)
+print(user1 >= user2)

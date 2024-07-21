@@ -1,6 +1,6 @@
 # SwiftUIIn100Days
 
-![swiftui-96x96_2x](/Users/fan/Desktop/SwiftUIIn100Days/README.assets/swiftui-96x96_2x.png)
+![swiftui-96x96_2x](./README.assets/swiftui-96x96_2x.png)
 
 ## Learning Source URLs 🔗
 

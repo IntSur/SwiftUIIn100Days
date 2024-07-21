@@ -137,3 +137,14 @@
 - 拓展需要放在代码顶部
 - set、array、dictionary在swift中都属于一个名为“Collection”的协议
 - 拓展+协议能实现：让自定义结构体的方法也能和类方法一样，有默认值，也能重写方法。
+
+## Day14：可选项、空合并、CheckPoint9
+
+- 可选项允许我们使用可能缺失真实值的数据 
+
+- 所有数据类型都可以是可选的：Int？String？...
+
+- if let ：可选项有真实值时，跑if let里的代码。
+
+  guard let：可选项没有真实值时，跑guard let里的代码。其中，return是必须的。
+

@@ -58,7 +58,7 @@ class Car: Vehicle {
     var isTwoDoor: Bool
     init(isElectric: Bool, isTwoDoor: Bool) {
         self.isTwoDoor = isTwoDoor
-        super.init(isElectric: isElectric) // super相当于调用了父类。当子类需要初始化时，必须将父类的所有成员也初始化。
+        super.init(isElectric: isElectric) // super相当于调用了父类。当子类需要初始化时，必须将父类的所有属性也初始化。
     }
 }
 

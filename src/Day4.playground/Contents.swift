@@ -31,6 +31,6 @@ var eArray2 = [String]()
 var eArray3: [String] = []
 
 var eSet1 = Set<Int>()
-var eSet2: Set<Int> = ()
+var eSet2: Set<Int> = ([])
 
 var eDictionary:[Int: String] = [:]

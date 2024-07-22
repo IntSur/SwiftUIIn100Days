@@ -58,7 +58,7 @@ do {
     print(error.localizedDescription)//苹果自带的报错信息
 }
 
-//CheckPoint5📋：自己写一个1～10000求平方根的函数
+//CheckPoint4📋：自己写一个1～10000求平方根的函数
 enum ErrorCodeForSqrt:Error {
     case tooLow
     case tooHigh

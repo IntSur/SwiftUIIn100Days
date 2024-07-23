@@ -1569,92 +1569,218 @@ func randomPickArray(of array: [Int?]?) {
 
 ## SwiftUI项目
 
-### Day16：Demo1项目第一部分
+### Day16：WeSplit项目第一部分
+
+#### 项目文件目录简介：
 
 - 显示文件格式：偏好设置→通用
 
 - 项目主函数文件：main主函数，起了个线程，一直会跑。![](./SwiftUI in 100 Days.assets/截屏2024-07-22 22.09.52.png)
-
 - 资产文件：存放所有用到的图片资源![截屏2024-07-22 22.12.45](./SwiftUI in 100 Days.assets/截屏2024-07-22 22.12.45.png)
-
 - Preview Content:预览数据信息
 
-- ContentView初始化代码解析
+#### ContentView初始化代码解析：
 
-  ```swift
-  import SwiftUI
-  
-  struct ContentView: View {//从View协议中创建ContentView
-      var body: some View {//创建名为body的计算属性，返回不透明返回类型。
-          VStack {//一个垂直堆叠视图容器，它将子视图垂直排列。
-              Image(systemName: "globe")
-                  .imageScale(.large)
-                  .foregroundStyle(.tint)//设置图像的前景色为当前视图的色调（tint color）
-              Text("Hello, world!")
-          }
-          .padding()//为 VStack 视图添加默认的内边距，使其内容与视图边界之间有一些空间。
-      }
-  }
-  //#后的代码不会被上传，仅用于在画布（canvas）上预览app使用
-  #Preview {
-      ContentView()
-  }
-  ```
+![截屏2024-07-22 22.45.42](./SwiftUI in 100 Days.assets/截屏2024-07-22 22.45.42.png)
 
-- Preview预览器：![截屏2024-07-22 22.45.42](./SwiftUI in 100 Days.assets/截屏2024-07-22 22.45.42.png)
+```swift
+import SwiftUI
 
-- 表单案例：![截屏2024-07-22 23.17.32](./SwiftUI in 100 Days.assets/截屏2024-07-22 23.17.32.png)
+struct ContentView: View {//从View协议中创建ContentView
+    var body: some View {//创建名为body的计算属性，返回不透明返回类型。
+        VStack {//一个垂直堆叠视图容器，它将子视图垂直排列。
+            Image(systemName: "globe")
+                .imageScale(.large)
+                .foregroundStyle(.tint)//设置图像的前景色为当前视图的色调（tint color）
+            Text("Hello, world!")
+        }
+        .padding()//为 VStack 视图添加默认的内边距，使其内容与视图边界之间有一些空间。
+    }
+}
+//#后的代码不会被上传，仅用于在画布（canvas）上预览app使用
+#Preview {
+    ContentView()
+}
+```
 
-  ```swift
-  import SwiftUI
-  
-  struct ContentView: View {
-      var body: some View {
-          NavigationStack {//导航栏视图
-              Form {//表单视图
-                  Section {//章节视图
-                      Text("Hello World!🌍")
-                  }
-                  
-                  Section {
-                      Text("Hello World!🌍")
-                      Text("Hello World!🌍")
-                  }
-                  
-                  Text("Hello World!🌍")
-                  Text("Hello World!🌍")
-                  Text("Hello World!🌍")
-                  Text("Hello World!🌍")
-              }
-              .navigationTitle("SwiftUI")//导航栏标题
-              .navigationBarTitleDisplayMode(.automatic)//导航栏标题显示模式
-          }
-      }
-  }
-  
-  #Preview {
-      ContentView()
-  }
-  ```
+#### 表单案例：
 
-- 点按钮次数案例：![截屏2024-07-22 23.32.38](./SwiftUI in 100 Days.assets/截屏2024-07-22 23.32.38.png)
+![截屏2024-07-22 23.17.32](./SwiftUI in 100 Days.assets/截屏2024-07-22 23.17.32.png)
 
-  ```swift
-  import SwiftUI
-  
-  struct ContentView: View {
-      @State private var tapCount = 0//@State：属性包装器（property wrapper），它用于声明一个可以被视图重新渲染时改变的可变状态。属性包装器允许计算属性中的闭包方法更改这个值，Apple官方推荐加上private以增加数据安全性。
-      
-      var body: some View {
-          Button("Tap Count: \(tapCount)") {
-              tapCount += 1
-          }
-      }
-  }
-  
-  #Preview {
-      ContentView()
-  }
-  ```
+```swift
+import SwiftUI
 
-  
+struct ContentView: View {
+    var body: some View {
+        NavigationStack {//导航栏视图
+            Form {//表单视图
+                Section {//章节视图
+                    Text("Hello World!🌍")
+                }
+                
+                Section {
+                    Text("Hello World!🌍")
+                    Text("Hello World!🌍")
+                }
+                
+                Text("Hello World!🌍")
+                Text("Hello World!🌍")
+                Text("Hello World!🌍")
+                Text("Hello World!🌍")
+            }
+            .navigationTitle("SwiftUI")//导航栏标题
+            .navigationBarTitleDisplayMode(.automatic)//导航栏标题显示模式
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+#### 点按钮次数案例：
+
+![截屏2024-07-22 23.32.38](./SwiftUI in 100 Days.assets/截屏2024-07-22 23.32.38.png)
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    @State private var tapCount = 0//@State：属性包装器（property wrapper），它用于声明一个可以被视图重新渲染时改变的可变状态。属性包装器允许计算属性中的闭包方法更改这个值，Apple官方推荐加上private以增加数据安全性。
+    
+    var body: some View {
+        Button("Tap Count: \(tapCount)") {
+            tapCount += 1
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+#### 输入框绑定变量案例：
+
+![截屏2024-07-23 19.17.36](./SwiftUI in 100 Days.assets/截屏2024-07-23 19.17.36.png)
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    @State private var name = ""//存储用户输入的变量
+    var body: some View {
+        Form {
+            TextField("Enter your username:", text: $name)//TextField必须有一个与之绑定的变量名，在这里是name，前面的$是指双向绑定：此TextField可以同时读取和修改name。
+            Text("Hello \(name)")//这里只读，所以没有$
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+#### 选择框绑定变量案例：
+
+![截屏2024-07-23 20.16.04](./SwiftUI in 100 Days.assets/截屏2024-07-23 20.16.04.png)
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    let students = ["harry", "Hermione", "Ron"]
+    @State private var name = ""
+    var body: some View {
+        NavigationStack {
+            Form {
+                Picker("Select your student:", selection: $name) {//创建一个选择器，选择到的数据会被同步进双向绑定的name中
+                    ForEach(students, id: \.self) { //用循环创建出一个数组的text视图，并将循环到的所有text视图放入picker中。其中id: \.self，\ 引入了关键路径，. 表示当前元素，self 表示该元素本身。
+                      	Text($0)
+                    }
+                }
+            }
+            .navigationTitle("Select your student")
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+### Day17：WeSplit项目第二部分
+
+#### 完成基础框架：
+
+#### ![截屏2024-07-23 22.37.22](./SwiftUI in 100 Days.assets/截屏2024-07-23 22.37.22.png)
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    @State private var checkAmount = 0.0
+    @State private var numberOfPeople = 0
+    @State private var tipPercentage = 10
+    @FocusState private var amountIsFocused: Bool//@FocusState专门用于绑定Focus
+    
+    let tipPercentages = [0, 10, 15, 20]
+    
+    var totalPerPerson: Double {//用于计算每个人平摊费用的计算属性
+        let peopleCount = Double(numberOfPeople + 2)
+        let tipSelection = Double(tipPercentage)
+        let tipValue = checkAmount / 100 * tipSelection
+        let grandTotal = checkAmount + tipValue
+        let amountPerPerson = grandTotal / peopleCount
+        return amountPerPerson
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))// 如果双绑定数据类型（$checkAmount）是数字，那就用value；如果是字符串，那要用text。format设置了货币类型。
+                        .keyboardType(.decimalPad)// 输入键盘使用数字键盘
+                        .focused($amountIsFocused)// 设置输入框focusflag，以供关闭键盘
+                    Picker("Select number of people", selection: $numberOfPeople) {//选择器双向绑定的是numberOfPeople
+                        ForEach(2..<98) {//用循环生成2～98个人的全部视图，传给选择器进行显示。
+                            Text("\($0)")
+                        }
+                    }//
+                    //.pickerStyle(.navigationLink) //navigationLink：点击选择器后会跳入新界面中供用户选择，这很好，但并不喜欢这个效果，所以把它注释掉了。
+                }
+                
+                Section("How much tip do you want to leave?") {//章节文本显示
+                    Picker("Tip Percentage", selection: $tipPercentage) {
+                        ForEach(tipPercentages, id: \.self) {
+                            Text("\($0)%")
+                        }
+                    }
+                    .pickerStyle(.segmented)//选择器样式为滑块
+                }
+                
+                Section {
+                    Text(totalPerPerson, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                }
+            }
+            .navigationTitle("Tonight's bill 🥗")//为什么navigationTitle要写在NavigationStack里？因为相当于新增了一个标题进NavigationStack，在标题后再进行显示表单等视图元素。
+            .toolbar {//修饰符toolbar()让我们可以指定视图的工具栏项。这些工具栏项可能出现在屏幕上的各个位置 - 顶部的导航栏中、底部的特殊工具栏区域等。
+                if amountIsFocused {//如果输入框被选中
+                    Button("Done") {//在右上角生成Done的按钮
+                        amountIsFocused = false//将输入框flag关闭
+                    }
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+
+```
+

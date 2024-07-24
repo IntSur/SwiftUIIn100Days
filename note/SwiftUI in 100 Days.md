@@ -1716,7 +1716,7 @@ struct ContentView: View {
 
 #### 完成基础框架：
 
-#### ![截屏2024-07-23 22.37.22](./SwiftUI in 100 Days.assets/截屏2024-07-23 22.37.22.png)
+![截屏2024-07-24 20.49.21](./SwiftUI in 100 Days.assets/截屏2024-07-24 20.49.21.png)
 
 ```swift
 import SwiftUI
@@ -1745,12 +1745,11 @@ struct ContentView: View {
                     TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))// 如果双绑定数据类型（$checkAmount）是数字，那就用value；如果是字符串，那要用text。format设置了货币类型。
                         .keyboardType(.decimalPad)// 输入键盘使用数字键盘
                         .focused($amountIsFocused)// 设置输入框focusflag，以供关闭键盘
-                    Picker("Select number of people", selection: $numberOfPeople) {//选择器双向绑定的是numberOfPeople
-                        ForEach(2..<98) {//用循环生成2～98个人的全部视图，传给选择器进行显示。
+                    Picker("Select number of people", selection: $numberOfPeople) {// 选择器双向绑定的是numberOfPeople
+                        ForEach(2..<98) {// 用循环生成2～98个人的全部视图，传给选择器进行显示。这里只能用开区间，不能用闭区间。
                             Text("\($0)")
                         }
-                    }//
-                    //.pickerStyle(.navigationLink) //navigationLink：点击选择器后会跳入新界面中供用户选择，这很好，但并不喜欢这个效果，所以把它注释掉了。
+                    }// .pickerStyle(.navigationLink) //navigationLink：点击选择器后会跳入新界面中供用户选择，这很好，但并不喜欢这个效果，所以把它注释掉了。
                 }
                 
                 Section("How much tip do you want to leave?") {//章节文本显示
@@ -1784,3 +1783,114 @@ struct ContentView: View {
 
 ```
 
+### Day18：WeSplit项目优化
+
+#### 代码优化：
+
+```swift
+    var userCurrency = Locale.current.currency?.identifier ?? "USD"
+    
+    var grandTotal: Double {
+        let tipAmount = checkAmount / 100 * Double(tipPercentage)
+        return checkAmount + tipAmount
+    }
+    
+    var totalPerPerson: Double {
+        let peopleCount = Double(numberOfPeople + 1)
+        return grandTotal / peopleCount
+    }
+```
+
+### Day19：距离转换器Convertor案例
+
+#### 原始写法：
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    @State private var inputValue = 0.0
+    @State private var inputUnit = ""
+    @State private var outputUnit = ""
+    @FocusState private var focusFlag: Bool
+    
+    let units = ["Meters", "KiloMeters", "Yards", "Feet", "Miles"]
+    
+    var result: String {
+        let inputToMetersMultiplier: Double
+        let outputToMetersMultiplier: Double
+        
+        switch inputUnit {
+        case "KiloMeters":
+            inputToMetersMultiplier = 1000.0
+        case "Yards":
+            inputToMetersMultiplier = 0.9144
+        case "Feet":
+            inputToMetersMultiplier = 0.3048
+        case "Miles":
+            inputToMetersMultiplier = 1609.34
+        default:
+            inputToMetersMultiplier = 1.0
+        }
+        
+        switch outputUnit {
+        case "KiloMeters":
+            outputToMetersMultiplier = 0.001
+        case "Yards":
+            outputToMetersMultiplier = 1.09361
+        case "Feet":
+            outputToMetersMultiplier = 3.28084
+        case "Miles":
+            outputToMetersMultiplier = 0.000621371
+        default:
+            outputToMetersMultiplier = 1.0
+        }
+        
+        return "\((inputValue * inputToMetersMultiplier * outputToMetersMultiplier).formatted()) \(outputUnit.lowercased())"
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Input value:", value: $inputValue, format: .number)
+                        .keyboardType(.decimalPad)
+                        .focused($focusFlag)
+                }
+                
+                Picker("Select input unit:", selection: $inputUnit) {
+                    ForEach(units, id:\.self) {
+                        Text($0)
+                    }
+                }.pickerStyle(.menu)
+                
+                Picker("Select output unit:", selection: $outputUnit) {
+                    ForEach(units, id:\.self) {
+                        Text($0)
+                    }
+                }.pickerStyle(.menu)
+                
+                Section("Output Value:") {
+                    Text(result)
+                }
+            }
+            .navigationTitle("Convertor📏")
+            .toolbar {
+                if focusFlag {
+                    Button("Done") {
+                        focusFlag = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+
+
+#### 

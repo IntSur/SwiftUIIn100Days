@@ -1803,6 +1803,8 @@ struct ContentView: View {
 
 ### Day19：距离转换器Convertor案例
 
+![image-20240727014506841](./SwiftUI in 100 Days.assets/image-20240727014506841.png)
+
 #### 原始写法：
 
 ```swift
@@ -1902,7 +1904,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var inputValue = 0.0
     @State private var inputUnit: Dimension = UnitLength.meters// 类级关系：Dimension → UnitLength → meters
-    @State private var outputUnit: Dimension = UnitLength.millimeters// 类级关系：Dimension → UnitLength → meters
+    @State private var outputUnit: Dimension = UnitLength.kilometers// 类级关系：Dimension → UnitLength → kilometers
     @State private var selectedUnit = 0
     @FocusState private var focusFlag: Bool
     
@@ -1974,7 +1976,7 @@ struct ContentView: View {
     init() {// 以下代码写init里 是因为没法写在ContentView的开头
         formatter = MeasurementFormatter()
         formatter.unitOptions = .providedUnit// 让swift使用我们提供出的单位，不让swift使用自己从用户地区默认读出来的单位
-        formatter.unitStyle = .long// 显示的单位风格
+        formatter.unitStyle = .medium// 显示的单位风格
     }
 }
 

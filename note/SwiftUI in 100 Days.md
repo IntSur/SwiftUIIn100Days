@@ -1841,7 +1841,7 @@ struct ContentView: View {
         case "Feet":
             outputToMetersMultiplier = 3.28084
         case "Miles":
-            outputToMetersMultiplier = 0.000621371
+            outputToMetersMultiplier = 0.000621371`
         default:
             outputToMetersMultiplier = 1.0
         }
@@ -1883,6 +1883,98 @@ struct ContentView: View {
                 }
             }
         }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+优化写法：
+
+1. 无需自己写转换逻辑，调用Apple自带的测量和基础API（MeasurementFormatter和Measurement）即可完成聪明的翻译+本地化转换（根据用户所在地和使用语言选择合适爹转换单位）
+2. 不仅仅可以换算距离，还可以换算质量，温度，时间
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    @State private var inputValue = 0.0
+    @State private var inputUnit: Dimension = UnitLength.meters// 类级关系：Dimension → UnitLength → meters
+    @State private var outputUnit: Dimension = UnitLength.millimeters// 类级关系：Dimension → UnitLength → meters
+    @State private var selectedUnit = 0
+    @FocusState private var focusFlag: Bool
+    
+    let conversions = ["Distance", "Mass", "Temperature", "Time"]// 转换单位的种类：距离，质量，温度，时间
+    let units = [
+        [UnitLength.meters, UnitLength.kilometers, UnitLength.yards, UnitLength.feet, UnitLength.miles],
+        [UnitMass.grams, UnitMass.kilograms, UnitMass.ounces, UnitMass.pounds],
+        [UnitTemperature.celsius, UnitTemperature.fahrenheit, UnitTemperature.kelvin],
+        [UnitDuration.milliseconds, UnitDuration.seconds, UnitDuration.minutes, UnitDuration.hours]
+    ]// 创建二维数组，以对应inputUnit和outputUnit
+    
+    let formatter: MeasurementFormatter// MeasurementFormatter 是 Swift 中用于格式化度量单位的类
+    
+    var result: String {
+        let inputMeasurement = Measurement(value: inputValue, unit: inputUnit)//设定输入值和单位
+        let outputMeasurement = inputMeasurement.converted(to: outputUnit)//转换到输出单位
+        return formatter.string(from: outputMeasurement).capitalized//用formatter器输出对应输出值的字符串值，并且首字母大写。
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Input value:", value: $inputValue, format: .number)
+                        .keyboardType(.decimalPad)
+                        .focused($focusFlag)
+                }
+                
+                Section {
+                    Picker("Select conversion type:", selection: $selectedUnit) {
+                        ForEach(0..<4) { index in
+                            Text(conversions[index])
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                
+                Picker("Select input unit:", selection: $inputUnit) {
+                    ForEach(units[selectedUnit], id:\.self) {
+                        Text(formatter.string(from: $0).capitalized)
+                    }
+                }
+                
+                Picker("Select output unit:", selection: $outputUnit) {
+                    ForEach(units[selectedUnit], id:\.self) {
+                        Text(formatter.string(from: $0).capitalized)
+                    }
+                }
+                
+                Section("Output Value:") {
+                    Text(result)
+                }
+            }
+            .navigationTitle("Convertor📏")
+            .toolbar {
+                if focusFlag {
+                    Button("Done") {
+                        focusFlag = false
+                    }
+                }
+            }
+            .onChange(of: selectedUnit) {// 每当选中单位类型发生变化，输入和输出单位都要对应变化
+                inputUnit = units[selectedUnit][0]
+                outputUnit = units[selectedUnit][1]
+            }
+        }
+    }
+    
+    init() {// 以下代码写init里 是因为没法写在ContentView的开头
+        formatter = MeasurementFormatter()
+        formatter.unitOptions = .providedUnit// 让swift使用我们提供出的单位，不让swift使用自己从用户地区默认读出来的单位
+        formatter.unitStyle = .long// 显示的单位风格
     }
 }
 

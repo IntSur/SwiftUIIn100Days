@@ -1893,7 +1893,7 @@ struct ContentView: View {
 }
 ```
 
-优化写法：
+#### 优化写法：
 
 1. 无需自己写转换逻辑，调用Apple自带的测量和基础API（MeasurementFormatter和Measurement）即可完成聪明的翻译+本地化转换（根据用户所在地和使用语言选择合适爹转换单位）
 2. 不仅仅可以换算距离，还可以换算质量，温度，时间
@@ -1985,6 +1985,213 @@ struct ContentView: View {
 }
 ```
 
+### Day20：猜棋第一部分
+
+#### 视图中的三种堆栈：
+
+##### VStack、HStack、ZStack：
+
+垂直堆栈、水平堆栈、Z轴堆栈。
+
+![image-20240727112607601](./SwiftUI in 100 Days.assets/image-20240727112607601.png)
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Hello, there!")
+            Text("This is VStack.")
+          // Spacer() 插空
+        }
+        .padding(16)
+        HStack(alignment: .top, spacing: 20) {
+            Text("Hello, there!").font(.largeTitle)
+            Text("This is HStack.")
+        }
+        ZStack(alignment: .centerFirstTextBaseline) {
+            Text("Hello, there!").font(.largeTitle)
+            Text("This is ZStack.")
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+##### 背景颜色、安全区域、毛玻璃效果、圆角：
+
+![image-20240728124813651](./SwiftUI in 100 Days.assets/image-20240728124813651.png)
+
+文本信息背景颜色、视图堆栈背景颜色
+
+**Tip!!!:View code的实际视图效果是根据代码结构、代码顺序进行的。在初次接触这块时，我总觉得自己写出的code和心中所想的视图完全是两个样子，这时就要从代码结构、代码顺序的角度出发，思考一下问题出在哪。**
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        ZStack {
+            Color.blue// 创建一个背景颜色为蓝色，长宽为safeArea尺寸的，是ZStack自身的视图
+          
+            Text("Hello, my bgcolor is ")
+                .background(.gray)// 创建一个背景颜色为灰色的子视图，该子视图的灰色覆盖在ZStack自身视图的蓝色上
+        }
+	      .background(.gray)// 在ZStack作用域后紧接着写的属性修饰符，将应用于ZStack的子视图们。如果ZStack自身的视图和子视图们同时存在，优先应用于Stack视图。
+        .frame(minWidth: 150, maxWidth: 200, minHeight: 150,  maxHeight: 200)// 将应用于ZStack子视图们
+    }
+}
+```
 
 
-#### 
+
+能跟随系统颜色模式变化的颜色(primary)、自定义RGB
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        ZStack {
+            Text("Hello, my bgcolor is ")
+                .foregroundColor(Color(red: 0, green: 0, blue: 50))// 自定义RGB
+        }
+        .frame(width: 200, height: 200)
+        .background(.primary)//能跟随系统颜色模式变化的颜色(primary)
+    }
+}
+```
+
+能跟随系统颜色模式变化的颜色(secondary)、安全区域、毛玻璃效果、圆角
+
+![image-20240728124722843](./SwiftUI in 100 Days.assets/image-20240728124722843.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        ZStack {
+            HStack(spacing: 0) {
+                Color.yellow
+                Color.blue
+            }
+            Text("This is forest glasses effect.")
+                .padding(50)
+                .background(.ultraThinMaterial)
+                .foregroundColor(.secondary)// 能跟随系统颜色模式变化的颜色(primary)。半透明，配合毛玻璃效果能映射出背景的颜色。
+                .cornerRadius(20)
+        }
+        .ignoresSafeArea()
+    }
+}
+```
+
+#### 渐变效果：
+
+##### 线性渐变：
+
+![截屏2024-07-28 19.58.40](./SwiftUI in 100 Days.assets/截屏2024-07-28 19.58.40.png)
+
+```swift
+struct ContentView: View {
+    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)//相比于Day19案例里的老写法，这个新API更安全，并且更方便
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.orange, .yellow], startPoint: .top, endPoint: .bottom)// 线性渐变，可选多种颜色
+            VStack {
+                Text(displayTemp.formatted())
+                    .font(.system(size: 70, weight: .heavy))
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+```
+
+##### 多段式线性渐变：
+
+![截屏2024-07-28 20.29.42](./SwiftUI in 100 Days.assets/截屏2024-07-28 20.29.42.png)
+
+```swift
+struct ContentView: View {
+    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(stops: [
+                Gradient.Stop(color: .white, location: 0.45),//第一段：从头到45%的区域是纯白
+                Gradient.Stop(color: .black, location: 0.65) //第三段：从头到65%的区域是纯黑
+            ], startPoint: .top, endPoint: .bottom)
+        }
+        .ignoresSafeArea()
+    }
+}
+```
+
+##### 径向渐变：![截屏2024-07-28 20.44.20](./SwiftUI in 100 Days.assets/截屏2024-07-28 20.44.20.png)
+
+```swift
+struct ContentView: View {
+    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)
+    
+    var body: some View {
+        ZStack {
+            RadialGradient(colors: [.red, .orange, .yellow, .green , .blue, .indigo], center: .center, startRadius: 2, endRadius: 400)
+        }
+        .ignoresSafeArea()
+    }
+}
+```
+
+##### 角渐变：
+
+![截屏2024-07-28 20.47.55](./SwiftUI in 100 Days.assets/截屏2024-07-28 20.47.55.png)
+
+```swift
+struct ContentView: View {
+    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)
+    
+    var body: some View {
+        ZStack {
+            AngularGradient(colors: [.red, .orange, .yellow, .green , .blue, .indigo, .red], center: .center, angle: Angle(degrees: 180))
+        }
+        .ignoresSafeArea()
+    }
+}
+```
+
+##### 背景修饰符颜色的渐变：![截屏2024-07-28 21.36.41](./SwiftUI in 100 Days.assets/截屏2024-07-28 21.36.41.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Text("Background gradirent.")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .foregroundColor(.white)
+            .background(.indigo.gradient)
+    }
+}
+```
+
+#### 按钮：
+
+##### 按下普通按钮，以触发对应语句
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        Button("Button1", action: executePrint )
+    }
+    
+    func executePrint() {
+        print("Button1 is pressed.")
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+

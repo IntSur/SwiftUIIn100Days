@@ -2045,8 +2045,6 @@ struct ContentView: View {
 }
 ```
 
-
-
 能跟随系统颜色模式变化的颜色(primary)、自定义RGB
 
 ```swift
@@ -2175,7 +2173,7 @@ struct ContentView: View {
 
 #### 按钮：
 
-##### 按下普通按钮，以触发对应语句
+##### 按下普通按钮，以触发对应语句：
 
 ```swift
 import SwiftUI
@@ -2192,6 +2190,149 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+```
+
+##### 按钮角色：
+
+设置不同的按钮角色，屏幕阅读器的效果也不同，这对障碍人士很重要。
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Button("Delete", role: .destructive) {
+            print("Deleted something...")
+        }
+    }
+}
+```
+
+##### SwiftUI默认的按钮样式：
+
+![截屏2024-07-29 19.57.47](./SwiftUI in 100 Days.assets/截屏2024-07-29 19.57.47.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Button("Tap me") { }
+            .buttonStyle(.bordered)
+        
+        Button("Delete", role: .destructive) { }
+            .buttonStyle(.bordered)
+        
+        Button("Tap me") { }
+            .buttonStyle(.borderedProminent)
+      			.tint(.blue)
+        
+        Button("Delete", role: .destructive) { }
+            .buttonStyle(.borderedProminent)
+    }
+}
+```
+
+##### 自定义的按钮样式：
+
+![截屏2024-07-29 20.38.06](./SwiftUI in 100 Days.assets/截屏2024-07-29 20.38.06.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Button {
+            print("Button is pressed.")
+        } label: {
+            Text("Tap me")
+                .frame(maxWidth: 100, maxHeight: 60)
+                .foregroundStyle(.white)
+                .background(.green)
+                .cornerRadius(26)
+        }
+    }
+}
+```
+
+##### 图片显示：
+
+![截屏2024-07-29 20.52.31](./SwiftUI in 100 Days.assets/截屏2024-07-29 20.52.31.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Image("SwiftUI")
+        Image(decorative: "SwiftUI")// 不带阅读器效果
+    }
+}
+```
+
+##### SF Symbols：
+
+![截屏2024-07-29 21.21.11](./SwiftUI in 100 Days.assets/截屏2024-07-29 21.21.11.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Image(systemName: "gamecontroller.fill")
+            .font(.system(size: 78))
+            .foregroundColor(.blue)
+    }
+}
+```
+
+##### 图片和SF Symbols组合：
+
+![截屏2024-07-29 21.38.48](./SwiftUI in 100 Days.assets/截屏2024-07-29 21.38.48.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Button("Game Controller", systemImage: "gamecontroller.fill") {
+            
+        }
+    }
+}
+```
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Button {
+            
+        } label: {
+//            写法1
+//            VStack {
+//                Image(systemName: "gamecontroller.fill")
+//                    .font(.system(size: 88))
+//                Text("Game Controller")
+//            }
+//            写法2:用Label样式写，Swift能更聪明地做自适应导航。
+            Label("Game Controller", systemImage: "gamecontroller.fill")
+        }
+    }
+}
+```
+
+#### 弹页面告警：
+
+![截屏2024-07-29 21.59.40](./SwiftUI in 100 Days.assets/截屏2024-07-29 21.59.40.png)
+
+![截屏2024-07-29 22.01.05](./SwiftUI in 100 Days.assets/截屏2024-07-29 22.01.05.png)
+
+```swift
+struct ContentView: View {
+    @State private var isAlert = false
+    
+    var body: some View {
+        Button("Tap me to alert") {
+            isAlert = true
+        }        .buttonStyle(.bordered)
+        .alert("This is a demo alert.", isPresented: $isAlert) {
+            // 这个闭包的所有代码执行完毕后，会自动解除报警，将$isAlert变量变为false。
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) { }
+        } message: {
+            //告警框里的备注说明
+            Text("alert")
+        }
+    }
 }
 ```
 

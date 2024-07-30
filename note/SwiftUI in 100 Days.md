@@ -2,7 +2,13 @@
 
 ------
 
-Video URL:https://www.bilibili.com/video/BV1hZ42127Qu/?spm_id_from=333.788&vd_source=dec0df5946c5a4e7864de4bc96371c49
+Video URL:
+
+https://www.bilibili.com/video/BV1hZ42127Qu/?spm_id_from=333.788&vd_source=dec0df5946c5a4e7864de4bc96371c49
+
+Project Source Files URL:
+
+https://github.com/twostraws/HackingWithSwift
 
 ------
 
@@ -2022,11 +2028,7 @@ struct ContentView: View {
 }
 ```
 
-##### 背景颜色、安全区域、毛玻璃效果、圆角：
-
-![image-20240728124813651](./SwiftUI in 100 Days.assets/image-20240728124813651.png)
-
-文本信息背景颜色、视图堆栈背景颜色
+##### 文本信息背景颜色、视图堆栈背景颜色：
 
 **Tip!!!:View code的实际视图效果是根据代码结构、代码顺序进行的。在初次接触这块时，我总觉得自己写出的code和心中所想的视图完全是两个样子，这时就要从代码结构、代码顺序的角度出发，思考一下问题出在哪。**
 
@@ -2045,7 +2047,7 @@ struct ContentView: View {
 }
 ```
 
-能跟随系统颜色模式变化的颜色(primary)、自定义RGB
+##### 能跟随系统颜色模式变化的颜色(primary)、自定义RGB：
 
 ```swift
 struct ContentView: View {
@@ -2060,7 +2062,7 @@ struct ContentView: View {
 }
 ```
 
-能跟随系统颜色模式变化的颜色(secondary)、安全区域、毛玻璃效果、圆角
+##### 能跟随系统颜色模式变化的颜色(secondary)、安全区域、毛玻璃效果、圆角：
 
 ![image-20240728124722843](./SwiftUI in 100 Days.assets/image-20240728124722843.png)
 
@@ -2336,3 +2338,75 @@ struct ContentView: View {
 }
 ```
 
+### Day 21：猜棋第二部分
+
+选择国旗、判断国旗功能实现
+
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    @State private var countryFlags = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria",
+                        "Poland", "Spain", "UK", "Ukraine", "US"].shuffled()
+    @State private var correctAnswers = Int.random(in: 0...2)
+    @State private var showScore = false
+    @State private var alertTitle = ""
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.pink, .blue], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 20) {
+                VStack {
+                    Text("Tap the flag of")
+                        .font(.subheadline.weight(.medium)) //.subheadline是ios内置的可以随着用户环境字体变化的字体
+                    Text("\(countryFlags[correctAnswers])")
+                        .font(.largeTitle.weight(.semibold)) //.largeTitle是ios内置的可以随着用户环境字体变化的字体
+                }
+                
+                ForEach(0..<3) { indexOfFlag in
+                    Button(){
+                        tappedFlag(indexOfFlag)
+                    } label: {
+                        Image(countryFlags[indexOfFlag])
+                            .clipShape(.buttonBorder)
+                            .shadow(radius: 10)
+                    }
+                }
+            }
+        }
+        .alert(alertTitle, isPresented: $showScore) {
+            Button("Continue") {
+                refreshFlag()
+            }
+        } message: {
+            Text("Your score is ???")
+        }
+    }
+    
+    func tappedFlag(_ indexOfFlag: Int) {
+        if indexOfFlag == correctAnswers {
+            alertTitle = "Correct!"
+        } else {
+            alertTitle = "Wrong!"
+        }
+        showScore = true
+    }
+    
+    func refreshFlag() {
+        countryFlags.shuffle()
+        correctAnswers = Int.random(in: 0...2)
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+
+
+#### 调整模拟器的系统偏好设置
+
+![截屏2024-07-30 21.55.23](./SwiftUI in 100 Days.assets/截屏2024-07-30 21.55.23.png)

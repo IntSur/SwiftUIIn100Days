@@ -105,9 +105,9 @@ print(fahrenheit)
 - 不能将不同类型的数据放进同一个数组内
 - 常量数组sorted不会改变原数组，反而会生成下面一行的新数组。
 
-![截屏2024-06-26 22.14.23](/Users/fan/Desktop/SwiftUIIn100Days/note/SwiftUI in 100 Days.assets/截屏2024-06-26 22.14.23.png)
+![截屏2024-06-26 22.14.23](./SwiftUI in 100 Days.assets/截屏2024-06-26 22.14.23.png)
 
-- 常量数组reversed不会改变原数组，swift会记住原来的顺序，并生成一个倒序的新collection。![截屏2024-06-26 22.13.43](/Users/fan/Desktop/SwiftUIIn100Days/note/SwiftUI in 100 Days.assets/截屏2024-06-26 22.13.43.png)
+- 常量数组reversed不会改变原数组，swift会记住原来的顺序，并生成一个倒序的新collection。![截屏2024-06-26 22.13.43](./SwiftUI in 100 Days.assets/截屏2024-06-26 22.13.43.png)
 
 - 集合（set）和数组的区别：1.无序的 2.无重复元素
 - 所以集合不是append 而是用insert
@@ -876,9 +876,9 @@ print(player1)
 
 - 结构体static：给结构体属性、方法加上static前缀关键词，那该属性、方法就成为静态可共享的成员，该结构体的所有实体都能用到它。同时也不用必须先创建实体，才能再访问到成员。所以不用mutating关键字，结构体内的static属性就能被修改。
 
-- static成员无法访问非static成员，非static成员可以访问static成员![截屏2024-07-14 15.55.01](/Users/fan/Desktop/SwiftUIIn100Days/note/SwiftUI in 100 Days.assets/截屏2024-07-14 15.55.01.png)
+- static成员无法访问非static成员，非static成员可以访问static成员![截屏2024-07-14 15.55.01](./SwiftUI in 100 Days.assets/截屏2024-07-14 15.55.01.png)
 
-  ![截屏2024-07-14 15.54.11](/Users/fan/Desktop/SwiftUIIn100Days/note/SwiftUI in 100 Days.assets/截屏2024-07-14 15.54.11.png)
+  ![截屏2024-07-14 15.54.11](./SwiftUI in 100 Days.assets/截屏2024-07-14 15.54.11.png)
 
 - 结构体self和Self的区别：self一般用于调用结构体成员的数值，Self一般用于调用结构体成员的数据类型
 

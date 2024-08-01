@@ -2338,65 +2338,138 @@ struct ContentView: View {
 }
 ```
 
-### Day 21：猜棋第二部分
+### Day21：猜棋第二部分
 
-选择国旗、判断国旗功能实现
+#### 选择国旗、判断国旗功能实现、UI界面实现（合并至Day22）
+
+### Day22：猜棋第三部分
+
+#### 调整模拟器的系统偏好设置
+
+可以设置模拟器的明暗模式和系统字体大小
+
+![截屏2024-07-30 21.55.23](./SwiftUI in 100 Days.assets/截屏2024-07-30 21.55.23.png)
+
+#### 加入计分功能、做错时提示正确答案、8次做题结束后重新开始、做对一次就删除这次的正确答案
+
+![截屏2024-08-01 22.05.06](./SwiftUI in 100 Days.assets/截屏2024-08-01 22.05.06.png)
 
 ```swift
 import SwiftUI
 
 struct ContentView: View {
-    @State private var countryFlags = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria",
-                        "Poland", "Spain", "UK", "Ukraine", "US"].shuffled()
-    @State private var correctAnswers = Int.random(in: 0...2)
+    static let originCountryFlags = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria",
+                                "Poland", "Spain", "UK", "Ukraine", "US"]
+    @State private var countryFlags = originCountryFlags.shuffled()
+    @State private var correctAnswer = Int.random(in: 0...2)
     @State private var showScore = false
     @State private var alertTitle = ""
+    @State private var score = 0
+    @State private var remainingTime = 8
+    @State private var restart = false
     
     var body: some View {
         ZStack {
             LinearGradient(colors: [.pink, .blue], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                VStack {
-                    Text("Tap the flag of")
-                        .font(.subheadline.weight(.medium)) //.subheadline是ios内置的可以随着用户环境字体变化的字体
-                    Text("\(countryFlags[correctAnswers])")
-                        .font(.largeTitle.weight(.semibold)) //.largeTitle是ios内置的可以随着用户环境字体变化的字体
-                }
+            VStack{
+                Text("Guess Flag")
+                    .font(.largeTitle.bold())
+                    .padding(.top, 20)
                 
-                ForEach(0..<3) { indexOfFlag in
-                    Button(){
-                        tappedFlag(indexOfFlag)
-                    } label: {
-                        Image(countryFlags[indexOfFlag])
-                            .clipShape(.buttonBorder)
-                            .shadow(radius: 10)
+                Spacer()
+                
+                VStack(spacing: 15) {
+                    VStack {
+                        Text("Tap the flag of")
+                            .font(.subheadline.weight(.medium)) //.subheadline是ios内置的可以随着用户环境字体变化的字体
+                        Text("\(countryFlags[correctAnswer])")
+                            .font(.largeTitle.weight(.semibold)) //.largeTitle是ios内置的可以随着用户环境字体变化的字体
+                    }
+                    
+                    ForEach(0..<3) { indexOfFlag in
+                        Button(){
+                            tappedFlag(indexOfFlag)
+                        } label: {
+                            Image(countryFlags[indexOfFlag])
+                                .clipShape(.buttonBorder)
+                                .shadow(radius: 10)
+                        }
                     }
                 }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+                .background(.ultraThinMaterial)
+                .clipShape(.rect(cornerRadius: 20))
+                
+                Spacer()
+                
+                Text("Your score is \(score)")
+                    .font(.title.bold())
+                
+                Spacer()
             }
+            .padding(20)
         }
         .alert(alertTitle, isPresented: $showScore) {
             Button("Continue") {
                 refreshFlag()
             }
         } message: {
-            Text("Your score is ???")
+//            Text("Your score is \(score)")
+            if remainingTime > 1 {
+                Text("Remaining \(remainingTime) times")
+            } else {
+                Text("Remaining \(remainingTime) time")
+            }
+        }
+        .alert(alertTitle, isPresented: $restart) {
+            Button("Restart") {
+                refreshFlag()
+            }
+        } message: {
+//            Text("Your score is \(score)")
+            if remainingTime > 1 {
+                Text("Remaining \(remainingTime) times")
+            } else {
+                Text("Remaining \(remainingTime) time")
+            }
         }
     }
     
     func tappedFlag(_ indexOfFlag: Int) {
-        if indexOfFlag == correctAnswers {
+        let needsThe = ["UK", "US"]
+        let selectFlag = countryFlags[indexOfFlag]
+        
+        if indexOfFlag == correctAnswer {
             alertTitle = "Correct!"
+            score += 1
         } else {
-            alertTitle = "Wrong!"
+            if needsThe.contains(selectFlag) {
+                alertTitle = "Wrong!The country of this flag is the \(selectFlag)"
+            } else {
+                alertTitle = "Wrong!The country of this flag is \(selectFlag)"
+            }
+            score -= 1
         }
-        showScore = true
+        remainingTime -= 1
+        
+        if remainingTime == 0 {
+            restart = true
+        } else {
+            showScore = true
+        }
     }
     
     func refreshFlag() {
+        countryFlags.remove(at: correctAnswer)
         countryFlags.shuffle()
-        correctAnswers = Int.random(in: 0...2)
+        correctAnswer = Int.random(in: 0...2)
+        if restart == true {
+            remainingTime = 8
+            score = 0
+            countryFlags = Self.originCountryFlags
+        }
     }
 }
 
@@ -2405,8 +2478,3 @@ struct ContentView: View {
 }
 ```
 
-
-
-#### 调整模拟器的系统偏好设置
-
-![截屏2024-07-30 21.55.23](./SwiftUI in 100 Days.assets/截屏2024-07-30 21.55.23.png)

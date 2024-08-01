@@ -18,7 +18,13 @@ B站搬运：https://www.bilibili.com/video/BV1hZ42127Qu/?spm_id_from=333.788&vd
 
 ✅ Day1～15：SwiftUI基本语法 
 
-❓Day16...
+✅ Day16～18：小费AA计算器 Tonight's Bill🥗 案例
+
+✅ Day19：单位转换器 Convertor📏 案例
+
+✅ Day20～22：猜棋 GuessFlag 案例
+
+❓Day23...
 
 ## Lisence 🪪
 

@@ -2030,7 +2030,7 @@ struct ContentView: View {
 
 ##### 文本信息背景颜色、视图堆栈背景颜色：
 
-**Tip!!!:View code的实际视图效果是根据代码结构、代码顺序进行的。在初次接触这块时，我总觉得自己写出的code和心中所想的视图完全是两个样子，这时就要从代码结构、代码顺序的角度出发，思考一下问题出在哪。**
+**Tip!!!:View code的实际视图效果是根据代码结构、代码顺序进行的。在初次接触这块时，我总觉得自己写出的code和心中所想的视图完全是两个样子，这时就要从代码结构、代码顺序的角度出发，思考一下问题出在哪。**（这个问题会在Day23视图和修饰符中详细讲解）
 
 ```swift
 struct ContentView: View {
@@ -2046,6 +2046,22 @@ struct ContentView: View {
     }
 }
 ```
+
+或者把ZStack的frame设置成无限宽或无限高，也能做出全屏背景颜色的效果。
+
+```swift
+VStack {
+            Image(systemName: "globe")
+                .imageScale(.large)
+                .foregroundStyle(.tint)
+            Text("Hello, world!")
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)//frame设置成无限宽或无限高，也能实现背景全indigo
+        .padding()
+        .background(.indigo)
+```
+
+
 
 ##### 能跟随系统颜色模式变化的颜色(primary)、自定义RGB：
 
@@ -2476,5 +2492,99 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+```
+
+### Day23：视图和修饰符第一部分
+
+UIKit和SwfitUI一个很大的区别：UIKit的View用的是class，不管你生成的view实例有没有用到父类（UIView）中的属性，这些属性都会带给你的实例。而SwfitUI则是非常轻便简单的结构体，不带任何父类属性。所以用类时，app经常运行奔溃，性能也被浪费。
+
+#### 修饰符的原理：
+
+修饰符并不修改视图元素的属性，而是一层层包上去的。
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Button("Tap me") {
+            //是不是很疑惑为什么不是一个200x200大小的红色背景按钮？那就打印看下这个按钮到底是什么类型。
+            //实际上是一个被修饰符层层包裹的ContentView类型，所以修饰符的先后顺序决定了视图的样式。
+            print(type(of: self))
+        }
+        .background(.red)
+        .frame(width: 200, height: 200)
+    }
+}
+```
+
+![截屏2024-08-06 22.10.08](./SwiftUI in 100 Days.assets/截屏2024-08-06 22.10.08.png)
+
+利用修饰符的先后顺序就能写出不同的效果：![截屏2024-08-06 22.14.29](./SwiftUI in 100 Days.assets/截屏2024-08-06 22.14.29.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Text("Hello World!")
+            .padding()
+            .background(.red)
+            .padding()
+            .background(.green)
+            .padding()
+            .background(.blue)
+            .padding()
+            .background(.indigo)
+    }
+}
+```
+
+#### some View：
+
+some View是个不透明返回值，返回给body。SwiftUI在创建body时能大概认识这个视图，但在闭包内我们需要返回给SwiftUI实际的视图类型，比如Text、Image等等。
+
+这时思考两个问题：
+
+1.当一个包含多种视图类型的VStack被返回给body时，SwiftUI是怎么知道视图的具体类型的？
+
+​	A：VStack会返回含有多个视图类型的元组视图类型。例如：VStack里是两个Text，那就返回包含两个Text类型的元组。
+
+2.如果没有Stack，直接返回给body多个视图，SwiftUI是怎么处理的？
+
+​	A：SwiftUI自动给body一个特殊属性以收容所有视图，这种特殊属性叫做视图生成器（ViewBuilder），它能将松散的view属性收容到元组视图中。![截屏2024-08-06 22.34.21](./SwiftUI in 100 Days.assets/截屏2024-08-06 22.34.21.png)
+
+#### 三元运算符在修饰符里的作用：
+
+相比于传统if else，能节省很多性能。如果用if else写，那就要不断地创建button，删除button。而三元运算符+修饰符，是一直监控的。
+
+```swift
+@State private var istapped = false
+    
+    var body: some View {
+        Button("Temperature") {
+            istapped.toggle()
+        }
+        .foregroundColor(istapped ? .green : .red)
+    }
+```
+
+环境修饰符和普通修饰符：
+
+环境修饰符：加在Stack闭包后的修饰符。
+
+普通修饰符：加在普通view闭包后的修饰符。
+
+环境修饰符是把修饰符修饰到子视图身上的，如果子视图也有该类的修饰符，那就以子视图的修饰符优先。（.blur这个修饰符除外）
+
+![截屏2024-08-06 22.55.34](./SwiftUI in 100 Days.assets/截屏2024-08-06 22.55.34.png)
+
+```swift
+var body: some View {
+        VStack {
+            Text("Title1")
+                .font(.largeTitle)
+            Text("Title1")
+            Text("Title1")
+            Text("Title1")
+        }
+        .font(.title)
+    }
 ```
 

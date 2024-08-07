@@ -2726,6 +2726,8 @@ struct ContentView: View {
 
 #### 使用**泛型**，自定义网格堆栈结构体：
 
+![截屏2024-08-07 22.05.13](./SwiftUI in 100 Days.assets/截屏2024-08-07 22.05.13.png)
+
 ```swift
 struct GridStack<Content: View>: View {
     var rows: Int

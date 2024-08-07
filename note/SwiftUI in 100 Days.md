@@ -2588,3 +2588,224 @@ var body: some View {
     }
 ```
 
+#### 将复杂的视图拆分成一个个属性：
+
+因为SwiftUI不允许结构体内的存储属性相互调用，所以可以使用计算属性进行包装多个视图。![截屏2024-08-07 19.30.54](./SwiftUI in 100 Days.assets/截屏2024-08-07 19.30.54.png)
+
+```swift
+struct ContentView: View {
+    let view1 = Text("Title1")
+        
+    let view2 = Text("Title2")
+        .font(.title)
+    
+    let view3 = Text("Title3")
+        .font(.title)
+        .italic()
+    
+    //1.多视图写法1
+    var views1: some View {
+        VStack {
+            Text("Title4")
+            Text("Title5")
+        }
+    }
+    //2.多视图写法2
+    var views2: some View {
+        Group {
+            Text("Title4")
+            Text("Title5")
+        }
+    }
+    //3.多视图写法3
+    @ViewBuilder var views3: some View {
+        Text("Title6")
+        Text("Title7")
+    }
+    
+    var body: some View {
+        VStack {
+            view1
+            view2
+            view3
+            views1
+            views3
+        }
+    }
+}
+```
+
+#### 自定义视图:
+
+这样的创建视图的效率极高，性能极好。
+
+![截屏2024-08-07 19.31.54](./SwiftUI in 100 Days.assets/截屏2024-08-07 19.31.54.png)
+
+```swift
+struct blueCapsuleText: View {
+    var text: String
+    
+    var body: some View {
+        Text(text)
+            .padding()
+            .foregroundStyle(.white)
+            .background(.blue)
+            .containerShape(.capsule)
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        blueCapsuleText(text: "Text1")
+        blueCapsuleText(text: "Text2")
+    }
+}
+```
+
+#### 自定义修饰符:
+
+![截屏2024-08-07 20.42.48](./SwiftUI in 100 Days.assets/截屏2024-08-07 20.42.48.png)
+
+```swift
+//自定义修饰符
+struct blueCapsuleModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .foregroundColor(.white)
+            .background(.blue)
+            .containerShape(.capsule)
+    }
+}
+//拓展view，以更方便地使用自定义修饰符
+extension View {
+    func blueCapsuleStyle() -> some View {
+        modifier(blueCapsuleModifier())//这行代码返回了一个ModifiedContent类型
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        Text("Text1")
+            .blueCapsuleStyle()
+    }
+}
+```
+
+添加水印案例：
+
+```swift
+struct WaterMark: ViewModifier {
+    var waterMarkText: String
+    
+    func body(content: Content) -> some View {
+        ZStack(alignment: .bottomTrailing) {
+            content//作为Z堆栈最下面的视图，是被打水印的图层
+            
+            Text(waterMarkText)//水印样式
+                .foregroundStyle(.secondary)
+                .padding(.all, 10)
+        }
+    }
+}
+
+extension View {
+    func waterMarkStyle() -> some View {
+        modifier(WaterMark(waterMarkText: "©️F"))
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        Color.blue
+            .frame(width: 300, height: 300)
+            .waterMarkStyle() 
+    }
+}
+```
+
+#### 使用**泛型**，自定义网格堆栈结构体：
+
+```swift
+struct GridStack<Content: View>: View {
+    var rows: Int
+    var column: Int
+    @ViewBuilder var content: (Int, Int) -> Content//1.用ViewBuilder，让闭包返回元组视图
+    
+    var body: some View {
+        VStack {
+            ForEach(0..<rows, id: \.self) { row in
+                HStack {
+                    ForEach(0..<column, id: \.self) { column in
+                        content(row, column)
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        ZStack {
+            GridStack(rows: 4, column: 4, content: { row, col in
+//                HStack() { //2.用HStack，让闭包返回元组视图
+                    Image(systemName: "\(row*4 + col + 1).circle")
+                    Text("R\(row) C\(col)")
+                        .padding(3)
+//                }
+            })
+        }
+        .background(.blue)
+    }
+}
+```
+
+### Day24：视图和修饰符第二部分
+
+#### 改进1:
+
+用三元运算符实时渲染，当小费为0%时，渲染总价字体颜色为红色
+
+```swift
+Section("Total amount") {
+    Text(grandTotal, format: .currency(code: userCurrency))
+        .foregroundStyle(tipPercentage == 0 ? .red : .primary)
+}
+```
+
+#### 改进2:
+
+将旗帜图案的视图写成自定义结构体，分成小模块放在其他文件里。
+
+```swift
+//ContentView.swift
+ForEach(0..<3) { indexOfFlag in
+  Button(){
+      tappedFlag(indexOfFlag)
+  } label: {
+      FlagImageView(flagImageName: countryFlags[indexOfFlag])
+  }
+}
+
+//FlagImage.swift
+import SwiftUI
+
+struct FlagImageView: View {
+    var flagImageName: String
+    
+    var body: some View {
+        Image(flagImageName)
+            .clipShape(.buttonBorder)
+            .shadow(radius: 10)
+    }
+}
+
+#Preview {
+    FlagImageView(flagImageName: "Germany")
+}
+
+```
+
+
+

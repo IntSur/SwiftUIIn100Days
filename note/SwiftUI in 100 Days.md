@@ -2664,8 +2664,6 @@ struct ContentView: View {
 
 #### 自定义修饰符:
 
-![截屏2024-08-07 20.42.48](./SwiftUI in 100 Days.assets/截屏2024-08-07 20.42.48.png)
-
 ```swift
 //自定义修饰符
 struct blueCapsuleModifier: ViewModifier {
@@ -2693,6 +2691,8 @@ struct ContentView: View {
 ```
 
 添加水印案例：
+
+![截屏2024-08-07 20.42.48](./SwiftUI in 100 Days.assets/截屏2024-08-07 20.42.48.png)
 
 ```swift
 struct WaterMark: ViewModifier {
@@ -2732,7 +2732,7 @@ struct ContentView: View {
 struct GridStack<Content: View>: View {
     var rows: Int
     var column: Int
-    @ViewBuilder var content: (Int, Int) -> Content//1.用ViewBuilder，让闭包返回元组视图
+    @ViewBuilder var content: (Int, Int) -> Content//1.用@ViewBuilder，让闭包返回元组视图
     
     var body: some View {
         VStack {
@@ -2809,5 +2809,133 @@ struct FlagImageView: View {
 
 ```
 
+### Day25：项目1-3总结案例：石头剪刀布
 
+该案例已基于视频课中的案例进行优化，实现了现实生活中的石头剪刀布，并做得更公平更随机性。
 
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    let gestures = ["✊", "✋", "✌️", "❔"]
+    let resultColors: [String: Color] = [
+        "winnerColor": Color(red: 0, green: 0.9, blue: 0),
+        "loserColor": Color(red: 0.9, green: 0, blue: 0)
+    ]
+    
+    @State private var computerSelected = 3
+    @State private var winnerText = " "
+    @State private var didYouWin = Bool.random()
+    @State private var score = 0
+    @State private var correctTimes = 0
+    @State private var remainingTimes = 10
+    @State private var remainingTimeZero = false
+    
+    var body: some View {
+        ZStack {
+            VStack {
+                Spacer()
+                
+                Text("Computer is playing...")
+                    .font(.title)
+                Spacer()
+                Text(gestures[computerSelected])
+                    .font(.system(size: 150))
+                Spacer()
+                
+                Text(winnerText)
+                    .font(.system(size: 30, weight: .bold, design: .monospaced))
+                    .foregroundStyle(didYouWin == true ? resultColors["winnerColor", default: .black] : resultColors["loserColor", default: .black])
+                
+                Spacer()
+                Text("Choose your gesture：")
+                Spacer()
+                
+                HStack {
+                    ForEach(0..<3) { index in
+                        Button(gestures[index]) {
+                            computerSelected = Int.random(in: 0...2)
+                            let winnerSelection = [1, 2, 0]
+                            
+                            if winnerSelection[computerSelected] == index {
+                                winnerText = "You win!"
+                                didYouWin = true
+                                score += 1
+                                correctTimes += 1
+                            } else if computerSelected == winnerSelection[index] {
+                                winnerText = "You lose!"
+                                didYouWin = false
+                                score -= 1
+                            } else {
+                                winnerText = " "
+                            }
+                            
+                            remainingTimes -= 1
+                            
+                            if remainingTimes == 0 {remainingTimeZero = true}
+                        }
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(20)
+                    }
+                }
+                .font(.system(size: 80))
+                
+                Spacer()
+                
+                Text("Your score: \(score)")
+                    .font(.title)
+                Text("Remaining times: \(remainingTimes)")
+                    .font(.subheadline)
+                
+                Spacer()
+            }
+            .alert("Game over!", isPresented: $remainingTimeZero) {
+                Button("Restart") {
+                    restartGame()
+                }
+            } message: {
+                Text("Your guessing winning rate is \(correctTimes*10) %")
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(.blue.gradient)
+    }
+    
+    func restartGame() {
+        remainingTimes = 10
+        score = 0
+        correctTimes = 0
+        computerSelected = 3
+        winnerText = " "
+        remainingTimeZero = false
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+### Day26：项目四第一部分
+
+#### stepper()
+
+```
+
+```
+
+#### DatePicker()
+
+```
+
+```
+
+去掉时间选择器的label，但又不影响辅助旁白
+
+时间选择器只显示小时分钟
+
+时间选择器+单边范围
+
+#### Date
+
+时间结构体是非常复杂的，因为每天具体的时间并不一样，可能有闰年可能有闰天。试试在终端下"cal 9 1752"命令，你就会发现为了算准公历，人们把公元日历修改了。

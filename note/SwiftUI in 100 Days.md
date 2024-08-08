@@ -2813,6 +2813,8 @@ struct FlagImageView: View {
 
 该案例已基于视频课中的案例进行优化，实现了现实生活中的石头剪刀布，并做得更公平更随机性。
 
+![](./SwiftUI in 100 Days.assets/截屏2024-08-08 23.14.53.png)
+
 ```swift
 import SwiftUI
 

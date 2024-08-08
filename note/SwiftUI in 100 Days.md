@@ -2918,10 +2918,16 @@ struct ContentView: View {
 
 ### Day26：项目四第一部分
 
-#### stepper()
+#### Stepper()
 
-```
-
+```swift
+struct ContentView: View {
+    @State private var sleepTime = 8.0
+    
+    var body: some View {
+        Stepper("\(sleepTime.formatted()) h", value: $sleepTime, in: 8...12, step: 2)
+    }
+}
 ```
 
 #### DatePicker()

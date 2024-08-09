@@ -12,7 +12,7 @@ https://github.com/twostraws/HackingWithSwift
 
 ------
 
-## SwiftUI语法
+## Swift语法
 
 ### Day1：变量、常量、字符串、数字
 
@@ -2934,16 +2934,122 @@ struct ContentView: View {
 
 #### DatePicker()
 
+```swift
+DatePicker("Select a date", selection: $dateInfo)
+						.labelsHidden()//去掉时间选择器的label，但又不影响辅助旁白
+
+DatePicker("Select a date", selection: $dateInfo, displayedComponents: .hourAndMinute)//只显示小时和分钟
+            .labelsHidden()
+
+DatePicker("", selection: $dateInfo, in: dateInfo..., displayedComponents: .date)
+            .labelsHidden()//in后面加的单边范围
 ```
-
-```
-
-去掉时间选择器的label，但又不影响辅助旁白
-
-时间选择器只显示小时分钟
-
-时间选择器+单边范围
 
 #### Date
 
-时间结构体是非常复杂的，因为每天具体的时间并不一样，可能有闰年可能有闰天。试试在终端下"cal 9 1752"命令，你就会发现为了算准公历，人们把公元日历修改了。
+Date这个对象是非常复杂的，因为时间不是绝对的，可能有闰年可能有闰天。试试在终端下"cal 9 1752"命令，你就会发现为了算准公历，人们把公元日历修改了。
+
+#### 自定义时间的分和秒、获取时间的分和秒
+
+```swift
+struct ButtonModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(.ultraThinMaterial)
+            .cornerRadius(20)
+    }
+}
+
+extension View {
+    func oemButtonStyle() -> some View {
+        modifier(ButtonModifier())
+    }
+}
+
+struct ContentView: View {
+    @State private var sleepTime: Date? = nil
+    
+    var body: some View {
+        //自定义格式显示时间
+        Text(Date.now.formatted(date: .complete, time: .shortened))
+        
+        Button("Tap to get time") {
+            oemGetTime()
+        }
+        .oemButtonStyle()
+        
+        Button("Tap to set time") {
+            oemSetTime()
+        }
+        .oemButtonStyle()
+    }
+    
+    func oemSetTime() {
+        //自定义时间的分和秒
+        var dateComponents = DateComponents()
+        dateComponents.hour = 8
+        dateComponents.minute = 0
+        let date1 = Calendar.current.date(from: dateComponents) ?? .now
+        //Calendar.current.date(from: dateComponents)的意思是：
+        //Calendar.current：这是一个表示当前用户日历的 Calendar 对象。它通常使用的是当前系统设置的历法（例如公历）。
+        //date(from:)：这是 Calendar 的一个方法，用于将 DateComponents 转换为一个 Date 对象。
+        //dateComponents：这是一个 DateComponents对象，包含了构成日期和时间的各个部分，如年、月、日、小时、分钟等。
+        //所以Calendar.current.date(from: dateComponents)返回的是一个可选值。
+        
+        print("Time has been set to \(date1)")
+    }
+    
+    func oemGetTime() {
+        //获取时间的分和秒
+        let getTime = Calendar.current.dateComponents([.hour, .minute], from: .now)
+        let hour = getTime.hour ?? 0
+        let minute = getTime.minute ?? 0
+        
+        print("hour is \(hour), minute is \(minute)")
+    }
+}
+```
+
+#### 机器学习：
+
+CoreML
+
+##### 机器学习App：Create ML
+
+![截屏2024-08-10 00.01.13](./SwiftUI in 100 Days.assets/截屏2024-08-10 00.01.13.png)
+
+##### 选择表格回归：
+
+![截屏2024-08-10 00.04.16](./SwiftUI in 100 Days.assets/截屏2024-08-10 00.04.16.png)
+
+##### 导入csv文件：![截屏2024-08-10 00.07.36](./SwiftUI in 100 Days.assets/截屏2024-08-10 00.07.36.png)
+
+##### 选择target：
+
+这里我们为了推算出用户实际需要的睡眠，所以选择actualSleep参数。并将Features全选，因为我们需要参考每个数对实际睡眠时间的影响。算法选择自动。
+
+![截屏2024-08-10 00.10.05](./SwiftUI in 100 Days.assets/截屏2024-08-10 00.10.05.png)
+
+##### 开始训练
+
+点击train按钮，等待训练完成。
+
+![截屏2024-08-10 00.18.02](./SwiftUI in 100 Days.assets/截屏2024-08-10 00.18.02.png)
+
+##### 训练结果：
+
+Root Mean Square Error：
+
+均方根误差：常用于衡量模型预测值或估计量与观测值之间差异的一种指标。它代表预测值和观察值之差的二阶样本矩的平方根，或该差值的平方平均数。这里就代表我们训练出的模型推断出的实际睡眠时间和实际情况的误差在3分钟以内。
+
+##### 导出模型文件：
+
+![](./SwiftUI in 100 Days.assets/截屏2024-08-10 00.24.54.png)
+
+##### 机器学习的专门课程链接🔗：
+
+https://www.youtube.com/watch?v=a905KIBw1hs
+
+### Day27：项目四第一部分
+

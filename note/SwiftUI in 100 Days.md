@@ -3051,5 +3051,156 @@ Root Mean Square Error：
 
 https://www.youtube.com/watch?v=a905KIBw1hs
 
-### Day27：项目四第一部分
+### Day27：项目四第二部分
 
+#### 构建app基本界面
+
+```swift
+struct ContentView: View {
+    @State private var wakeUpTime = Date.now
+    @State private var sleepAmount = 0.0
+    @State private var coffeeAmount = 0
+    
+    var body: some View {
+        NavigationStack {
+            VStack {
+                Text("When do you want to wake up?")
+                    .font(.headline)
+                DatePicker("Select your wake up time:", selection: $wakeUpTime, displayedComponents: .hourAndMinute)
+                    .labelsHidden()
+                
+                Text("How much time do you want to sleep?")
+                    .font(.headline)
+                Stepper("\(sleepAmount.formatted()) h", value: $sleepAmount, in: 1...24, step: 0.25)
+                
+                Text("How much coffee do you drink a day？")
+                    .font(.headline)
+                Stepper("\(coffeeAmount.formatted()) cup(s)", value: $coffeeAmount, in: 1...20, step: 1)
+            }
+            .padding()
+            .navigationTitle("BetterSleep🛏️")
+            .toolbar {
+                Button("Calculate") {
+                    calculateActualSleep()
+                }
+            }
+        }
+    }
+    
+    func calculateActualSleep() {
+        //using CoreML calculating actual sleeping time
+        
+    }
+}
+```
+
+#### 导入MLmodel文件
+
+Tip：导入的模型文件名称决定了代码内模型类的名称
+
+![截屏2024-08-13 21.52.11](./SwiftUI in 100 Days.assets/截屏2024-08-13 21.52.11.png)
+
+#### 调用CoreML API
+
+![截屏2024-08-13 23.21.58](./SwiftUI in 100 Days.assets/截屏2024-08-13 23.21.58.png)
+
+```swift
+import SwiftUI
+import CoreML
+
+struct ContentView: View {
+    @State private var wakeUpTime = Date.now
+    @State private var sleepAmount = 8.0
+    @State private var coffeeAmount = 1
+    
+    @State private var alertTitle = " "
+    @State private var alertMessage = " "
+    @State private var isCalculateDown = false
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                VStack {
+                    Text("When do you want to wake up?")
+                        .font(.headline)
+                        .padding(.top, 40)
+                    DatePicker("Select your wake up time:", selection: $wakeUpTime, displayedComponents: .hourAndMinute)
+                        .labelsHidden()
+                    
+                    Spacer()
+                    
+                    Text("How much time do you want to sleep?")
+                        .font(.headline)
+                    Stepper("\(sleepAmount.formatted()) h", value: $sleepAmount, in: 1...24, step: 0.25)
+                        .padding(.horizontal,30)
+                    
+                    Spacer()
+                    
+                    Text("How much coffee do you drink a day？")
+                        .font(.headline)
+                    Stepper("\(coffeeAmount.formatted()) cup(s)", value: $coffeeAmount, in: 0...20, step: 1)
+                        .padding(.horizontal,30)
+                    
+                    Spacer()
+                }
+                .padding()
+                .navigationTitle("BetterSleep🛏️")
+                .toolbar {
+                    Button("Calculate") {
+                        calculateActualSleep()
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.indigo.gradient)
+            .alert(alertTitle, isPresented: $isCalculateDown) {
+                Button("OK") {} 
+            } message: {
+                Text(alertMessage)
+            }
+        }
+    }
+    
+    func calculateActualSleep() {
+        do {
+            //初始化机器学习ML模型配置
+            let config = MLModelConfiguration()
+            let model = try SleepCalculator(configuration: config)
+            
+            //获取睡醒时间的秒数
+            let tmpWakeUpTime = Calendar.current.dateComponents([.hour, .minute], from: wakeUpTime)
+            let tmp_estimatedSleep = (tmpWakeUpTime.hour ?? 0) * 60 * 60 + (tmpWakeUpTime.minute ?? 0) * 60
+            
+            //调用机器学习模型推算出实际需要睡多久
+            let prediction = try model.prediction(wake: Double(tmp_estimatedSleep), estimatedSleep: sleepAmount, coffee: Double(coffeeAmount))
+            
+            //调用聪明的苹果API：Date类型直接减去double类型，算出实际需要睡眠的时间，
+            let bedTime = wakeUpTime - prediction.actualSleep
+            
+            alertTitle = "Your bedtime is:"
+            alertMessage = "\(bedTime.formatted(date: .omitted, time: .shortened))"
+            
+            isCalculateDown = true
+        } catch {
+            alertTitle = "Error model init!!!"
+            alertMessage = "Try again later!"
+        }
+    }
+}
+```
+
+
+
+#### 设置初始入睡时间
+
+
+
+#### 改变为from表单
+
+
+
+#### 去除分隔符
+
+
+
+#### stepper优化

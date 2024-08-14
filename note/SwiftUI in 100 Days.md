@@ -3189,18 +3189,189 @@ struct ContentView: View {
 }
 ```
 
+#### 优化：
 
+![](./SwiftUI in 100 Days.assets/截屏2024-08-14 19.50.58.png)
 
-#### 设置初始入睡时间
+##### 设置初始入睡时间
 
+```swift
+@State private var wakeUpTime = defaultWakeUpTime
 
+//优化一：自定义初始化起床时间，避免让用户每次手动选择。使用static让defaultWakeUpTime在结构体内共享。
+static var defaultWakeUpTime: Date {
+    var defaultTime = DateComponents()
+    defaultTime.hour = 8
+    defaultTime.minute = 0
+    return Calendar.current.date(from: defaultTime) ?? Date.now
+}
+```
 
-#### 改变为from表单
+##### 改变为from表单 去除分隔符
 
+```swift
+//优化二：视图改变为from表单
+                    Form {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("When do you want to wake up?")
+                                .font(.headline)
+                            DatePicker("Select your wake up time:", selection: $wakeUpTime, displayedComponents: .hourAndMinute)
+                                .labelsHidden()
+                        }
 
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("How much time do you want to sleep?")
+                                .font(.headline)
+                            Stepper("\(sleepAmount.formatted()) h", value: $sleepAmount, in: 1...24, step: 0.25)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("How much coffee do you drink a day？")
+                                .font(.headline)
+                            Stepper("\(coffeeAmount.formatted()) cup(s)", value: $coffeeAmount, in: 0...20, step: 1)
+                        }
+                    }
+```
 
-#### 去除分隔符
+##### cup(s)优化
 
+`inflect: true` 是 Swift 的一个语言特性，它会根据插值的值自动调整字符串的形式，通常用于处理单复数形式。
 
+```swift
+Stepper("^[\(coffeeAmount) cup](inflect: true)", value: $coffeeAmount, in: 0...20)
+```
 
-#### stepper优化
+#### 使用Section让Text文字更清晰
+
+```swift
+//优化四：使用Section让Text文字更清晰
+Section("When do you want to wake up?") {
+                            DatePicker("Select your wake up time:", selection: $wakeUpTime, displayedComponents: .hourAndMinute)
+                                .labelsHidden()
+}
+```
+
+#### 自定义Section样式
+
+```swift
+Section() {
+      Stepper("\(sleepAmount.formatted()) h", value: $sleepAmount, in: 1...24, step: 0.25)
+      } header: {//优化五：自定义Section样式
+      Text("How much time do you want to sleep?")
+//                                .font(.title)
+      }
+```
+
+用Picker替换Stepper
+
+```swift
+//优化六：用上Picker
+Picker("cups", selection: $coffeeAmount) {
+    ForEach(0..<21) { index in
+        Text("\(index)")
+    }
+}
+```
+
+### Day28：项目四第三部分
+
+见Day27的优化部分
+
+### Day29：项目五第一部分
+
+#### List：
+
+##### list和form的不同：
+
+- form能接受用户输入，list不能。
+- form不能处理动态数据，list能。
+
+![截屏2024-08-14 21.36.06](./SwiftUI in 100 Days.assets/截屏2024-08-14 21.36.06.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+      	//list也能这么用
+      	//List(0..<5) {
+        //   Text("Dynamic Row \($0)")
+        //}
+        List {
+            Section {
+                Text("Static Row 1")
+                Text("Static Row 2")
+            }
+            
+            Section {
+                ForEach(0..<5) {
+                    Text("Dynamic Row \($0)")
+                }
+            }
+            
+            Section {
+                Text("Static Row 3")
+                Text("Static Row 4")
+            }
+        }
+        .listStyle(.grouped)//苹果系统设置选择栏样式
+    }
+}
+
+```
+
+##### list常用来遍历显示字符串数组：
+
+```swift
+struct ContentView: View {
+    let names = ["Steve", "Musk", "Gates"]
+    
+    var body: some View {
+        List {
+            Text("Name list:")
+            ForEach(names, id: \.self) {
+                Text("\($0)")
+            }
+        }
+    }
+}
+```
+
+#### Bundle：
+
+不同类的应用、文件资源都会被打包到一个bundle内。我们可以使用bundle去打开一些项目内的文件。
+
+#### 字符串处理：
+
+```swift
+    func characterWorks() {
+        //1.分割字符串
+        let string1 = "a b c"
+        let chars1 = string1.components(separatedBy: " ")
+        print("chars1 = \(chars1)")
+        
+        let string2 = """
+        a
+        b
+        c
+        """
+        let chars2 = string2.components(separatedBy: "\n")
+        print("chars2 = \(chars2)")
+        let chars3 = chars2.randomElement()
+        print(chars2.randomElement() ?? "")
+        
+        //2.修剪字符串：将字符前后多余的空白和换行符去除
+        let trimmedString = chars3?.trimmingCharacters(in: .whitespacesAndNewlines)
+//        print("trimmedString = \(trimmedString)")
+        
+        //3.检查字符串拼写
+        //这里使用的UITextChecker()是较老的Objective-C API
+        let word = "swift"
+        let checker = UITextChecker()
+        let range = NSRange(location: 0, length: word.utf16.count)
+        
+        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
+        let allGood = misspelledRange.location == NSNotFound
+        print("misspelledRange = \(allGood)")
+    }
+
+```
+

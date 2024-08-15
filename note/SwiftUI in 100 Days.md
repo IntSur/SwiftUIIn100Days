@@ -3337,7 +3337,22 @@ struct ContentView: View {
 
 #### Bundle：
 
-不同类的应用、文件资源都会被打包到一个bundle内。我们可以使用bundle去打开一些项目内的文件。
+不同类的应用、文件资源都会被打包到一个bundle内。我们可以使用bundle去打开一些项目内的文件。将 文件拖放到 Xcode 项目的文件浏览器（左侧的导航栏）中，通常放在 `Assets` 或 `Resources` 文件夹下，或者直接放在项目的根目录下。
+
+```swift
+func readfileUsingBundle() {
+ //找到bundle.main中的文件URL
+        if let fileURL = Bundle.main.url(forResource: "somefile", withExtension: "txt") {
+            print(fileURL)
+           //根据文件URL打开文件，读取文件内容
+            if let fileContent = try? String(contentsOf: fileURL) {
+                print(fileContent)
+            }
+        }
+    }
+```
+
+
 
 #### 字符串处理：
 
@@ -3373,5 +3388,245 @@ struct ContentView: View {
         print("misspelledRange = \(allGood)")
     }
 
+```
+
+### Day30：项目五第二部分
+
+#### 构建WordScramble界面，实现字符输入并显示的功能：
+
+![截屏2024-08-15 19.43.34](./SwiftUI in 100 Days.assets/截屏2024-08-15 19.43.34.png)
+
+```swift
+struct ContentView: View {
+    @State private var storedWord = [String]()
+    @State private var inputWord = ""
+    @State private var rootWord = ""
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    VStack {
+                        TextField("Input your word", text: $inputWord)
+                            .textInputAutocapitalization(.never)//自动去除输入字符串大写
+                    }
+                }
+
+                Section {
+                    ForEach(storedWord, id: \.self) { word in
+                        HStack {
+                            Image(systemName: "\(word.count).circle")//用SF字符表示字符串总数
+                            Text(word)
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle(rootWord)
+        .onSubmit(storeInputWords)
+    }
+    
+    func storeInputWords() {
+        //将inputword转为小写、去空格换行
+        let tmpWord = inputWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        //不存储空字符串
+        guard tmpWord.count > 0 else { return }
+        //添加字符串时新增动画
+        withAnimation {
+            storedWord.insert(tmpWord, at: 0)
+        }
+        
+        inputWord = ""
+    }
+}
+```
+
+#### 导入start.txt到bundle：
+
+![截屏2024-08-15 19.45.32](./SwiftUI in 100 Days.assets/截屏2024-08-15 19.45.32.png)
+
+#### 从start.txt中读取单词，显示在navigation标题：
+
+```swift
+		.onAppear(perform: startGame)//一旦该视图被显示，就触发括号中的函数。
+
+    func startGame() {
+        //打开文件随机获取字符串到rootWord
+        if let fileURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
+            if let fileContents = try? String(contentsOf: fileURL) {
+                let fileWords = fileContents.components(separatedBy: "\n")
+                rootWord = fileWords.randomElement() ?? "Null String"
+                return
+            }
+        }
+        //报错并直接闪退app
+        fatalError("Error opening file")
+    }
+```
+
+#### 检查输入字符串，完成游戏：
+
+1. 是否原创
+2. 是否在txt文件内存在
+3. 是否有拼写错误
+
+![截屏2024-08-15 21.59.16](./SwiftUI in 100 Days.assets/截屏2024-08-15 21.59.16.png)
+
+```swift
+struct ContentView: View {
+    @State private var storedWord = [String]()
+    @State private var inputWord = ""
+    @State private var rootWord = ""
+    
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    @State private var alertFlag = false
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    VStack {
+                        TextField("Input your word", text: $inputWord)
+                            .textInputAutocapitalization(.never)//自动去除输入字符串大写
+                    }
+                }
+
+                Section {
+                    ForEach(storedWord, id: \.self) { word in
+                        HStack {
+                            Image(systemName: "\(word.count).circle")//用SF字符表示字符串总数
+                            Text(word)
+                        }
+                    }
+                }
+            }
+            .navigationTitle(rootWord)
+            .onSubmit(storeInputWords)//一旦有东西被提交，就触发括号中的函数。
+            .onAppear(perform: startGame)//一旦该视图被显示，就触发括号中的函数。
+            .alert(alertTitle, isPresented: $alertFlag) { } message: {
+                Text(alertMessage)
+            }
+        }
+    }
+    
+    func storeInputWords() {
+        //将inputword转为小写、去空格换行
+        let tmpWord = inputWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        //不存储空字符串
+        guard tmpWord.count > 0 else { return }
+        
+        guard isOriginal(checkWord: tmpWord) else {
+            setAlerts(alertTitleIn: "Not an original word.", alertMessageIn: "Try an original word.")
+            return
+        }
+        
+        guard isSpellable(checkWord: tmpWord) else {
+            setAlerts(alertTitleIn: "Not a spellable word.", alertMessageIn: "Try a spellable word.")
+            alertFlag = true
+            return
+        }
+        
+        guard isInFile(checkWord: tmpWord) else {
+            setAlerts(alertTitleIn: "Not an InFile word.", alertMessageIn: "Try an InFile word.")
+            alertFlag = true
+            return
+        }
+        
+        //添加字符串时新增动画
+        withAnimation {
+            storedWord.insert(tmpWord, at: 0)
+        }
+        
+        inputWord = ""
+    }
+    
+    func startGame() {
+        //打开文件随机获取字符串到rootWord
+        if let fileURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
+            if let fileContents = try? String(contentsOf: fileURL) {
+                let fileWords = fileContents.components(separatedBy: "\n")
+                rootWord = fileWords.randomElement() ?? "Null String"
+                return
+            }
+        }
+        //报错并直接闪退app
+        fatalError("Error opening file")
+    }
+    //设置alert报错
+    func setAlerts(alertTitleIn: String, alertMessageIn: String) {
+        alertTitle = alertTitleIn
+        alertMessage = alertMessageIn
+        alertFlag = true
+    }
+    //是否原创
+    func isOriginal(checkWord: String) -> Bool {
+        !storedWord.contains(checkWord)
+    }
+    //是否在txt文件内存在
+    func isInFile(checkWord: String) -> Bool {
+        var tmpWord = rootWord
+        for char in tmpWord {
+            if let pos = tmpWord.firstIndex(of: char) {
+                tmpWord.remove(at: pos)
+            } else {
+                return false
+            }
+        }
+        return true
+    }
+    //是否有拼写错误
+    func isSpellable(checkWord: String) -> Bool {
+        let checker = UITextChecker()
+        let checkRange = NSRange(location: 0, length: checkWord.utf16.count)
+        let missSpelledRange = checker.rangeOfMisspelledWord(in: checkWord, range: checkRange, startingAt: 0, wrap: false, language: "en")
+        return missSpelledRange.location == NSNotFound
+    }
+}
+```
+
+### Day31：项目五第三部分
+
+#### 新增重启游戏按钮：
+
+```swift
+.toolbar {
+                Button("New Game") {
+                    startGame()
+                }
+            }
+            
+ func startGame() {
+        rootWord = ""
+        storedWord.removeAll()
+        score = 0
+        
+        //打开文件随机获取字符串到rootWord
+        if let fileURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
+            if let fileContents = try? String(contentsOf: fileURL) {
+                let fileWords = fileContents.components(separatedBy: "\n")
+                rootWord = fileWords.randomElement() ?? "Null String"
+                return
+            }
+        }
+        //报错并直接闪退app
+        fatalError("Error opening file")
+    }
+            
+```
+
+![截屏2024-08-15 22.16.15](./SwiftUI in 100 Days.assets/截屏2024-08-15 22.16.15.png)
+
+```swift
+//安全区视图
+            .safeAreaInset(edge: .bottom, alignment: .center, content: {
+                Text("Score:\(score)")
+                    .font(.headline)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(.blue)
+                    .foregroundColor(.white)
+                
+            })
 ```
 

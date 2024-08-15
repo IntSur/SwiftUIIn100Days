@@ -24,7 +24,17 @@ B站搬运：https://www.bilibili.com/video/BV1hZ42127Qu/?spm_id_from=333.788&vd
 
 ✅ Day20～22：猜棋 GuessFlag 案例
 
-❓Day23...
+✅ Day23～24：视图与修饰符
+
+✅ Day25：石头剪刀布 rock-paper-scissors 案例
+
+✅ Day26～28：机器学习API BetterSleep🛏️ 案例
+
+✅ Day29～31：猜字游戏 WordScramble 案例
+
+❓Day32：...
+
+
 
 ## Lisence 🪪
 

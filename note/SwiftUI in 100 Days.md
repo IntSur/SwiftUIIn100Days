@@ -283,7 +283,7 @@ var eDictionary:[Int: String] = [:]
 
 - 寻找到适合自己的声明方式
 - swift的switch语句不像c那样（即使匹配到对应的case也会跑下去）swift只会跑最终匹配到的case
-- 如果希望swift执行下面没匹配到的case，就用fallthrough
+- 如果希望swift执行下面没匹配到的case，就用
 - swiftUI中如果频繁使用if else，代码就会一团糟，使用三元运算符就能很好地解决这个问题
 - print()里不能使用if else进行选择性打印，但用三元运算符就可以
 
@@ -3628,5 +3628,326 @@ struct ContentView: View {
                     .foregroundColor(.white)
                 
             })
+```
+
+### Day32：项目六第一部分
+
+#### 动画：
+
+动画有三种写法：
+
+##### 1. 修饰符
+
+高斯模糊、五种动画效果：
+
+###### default:
+
+![录屏2024-08-16 22.30.12](./SwiftUI in 100 Days.assets/录屏2024-08-16 22.30.12-3818701.gif)
+
+```swift
+struct BlueButton: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(5)
+            .foregroundColor(.white)
+            .background(.blue)
+            .containerShape(.buttonBorder)
+    }
+}
+
+extension View {
+    func blueButtonStyle() -> some View {
+        modifier(BlueButton())
+    }
+}
+
+struct ContentView: View {
+    @State private var animationScale = 1.0
+    
+    var body: some View {
+        VStack {
+            Image(systemName: "globe")
+                .imageScale(.large)
+                .foregroundStyle(.tint)
+            Button("Hello, world!") {
+                animationScale += 0.1
+            }
+            .blueButtonStyle()
+            .scaleEffect(animationScale)//缩放比例
+            .blur(radius: (animationScale - 1) * 3) //高斯模糊
+            .animation(.default, value: animationScale)//动画效果
+        }
+        .padding()
+    }
+}
+```
+
+###### linear:
+
+![](./SwiftUI in 100 Days.assets/录屏2024-08-16.gif)
+
+```swift
+.animation(.linear, value: animationScale)
+```
+
+###### 自定义spring：
+
+![录屏2024-08-16 22.52.27](./SwiftUI in 100 Days.assets/录屏2024-08-16 22.52.27.gif)
+
+```swift
+.animation(.spring(duration: 0.5, bounce: 0.9), value: animationScale)
+```
+
+###### easeInOut+延时：
+
+![录屏2024-08-16 23.11.38](./SwiftUI in 100 Days.assets/录屏2024-08-16 23.11.38.gif)
+
+```swift
+.animation(.easeInOut(duration: 1).delay(1), value: animationScale)
+```
+
+###### easeInOut+重复：
+
+![录屏2024-08-16 23.19.15](./SwiftUI in 100 Days.assets/录屏2024-08-16 23.19.15.gif)
+
+```swift
+.animation(.easeInOut(duration: 1).repeatCount(3, autoreverses: true), value: animationScale)
+```
+
+tip：当repeatCount为2时，效果如下：
+
+![录屏2024-08-16 23.20.41](./SwiftUI in 100 Days.assets/录屏2024-08-16 23.20.41.gif)
+
+###### 脉冲光波扩散效果：
+
+![录屏2024-08-17 00.05.09](./SwiftUI in 100 Days.assets/录屏2024-08-17 00.05.09.gif)
+
+```swift
+struct ContentView: View {
+    @State private var animationScale = 1.0
+    @State private var animationScale2 = 2.0
+    
+    var body: some View {
+        VStack {
+            Button("Tap me") {
+                
+            }
+            .blueButtonStyle()
+            .overlay {
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(.blue)
+                    .scaleEffect(animationScale)
+                    .opacity(5 - animationScale)
+                    .animation(.easeOut(duration: 1.6).repeatForever(autoreverses: false), value: animationScale)
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(.blue)
+                    .scaleEffect(animationScale2)
+                    .opacity(3 - animationScale2)
+                    .animation(.easeOut(duration: 1.6).repeatForever(autoreverses: false), value: animationScale2)
+            }
+            .onAppear {
+                animationScale += 1
+                animationScale2 += 1
+            }
+        }
+        .padding()
+    }
+}
+```
+
+##### 2. 绑定动画系数
+
+动画是UI视图的修饰符。
+
+SwiftUI动画的原理：swift先获取动画应用前的视图状态a，再获取动画应用后的视图状态b，最后自动生成a到b的动画。
+
+Stepper + $animationScale.animation()也能实现动画
+
+```swift
+Stepper("Scale number", value: $animationScale.animation(), in: 1...20)
+```
+
+![录屏2024-08-18 20.21.52](./SwiftUI in 100 Days.assets/录屏2024-08-18 20.21.52.gif)
+
+```swift
+struct ContentView: View {
+    @State private var animationScale = 1.0
+    
+    var body: some View {
+        VStack {
+            Stepper("Scale number", value: $animationScale.animation(
+                .easeInOut(duration: 1)
+                .repeatCount(3, autoreverses: true)
+            ), in: 1...10)
+                .padding(30)
+            
+            Button("Tap") {
+                animationScale += 1
+            }
+            .padding(8)
+            .background(.blue)
+            .foregroundStyle(.white)
+            .clipShape(.buttonBorder)
+            .scaleEffect(animationScale)
+        }
+    }
+}
+```
+
+##### 3. 闭包函数
+
+###### 3D旋转动画+动画闭包写法：
+
+![录屏2024-08-18 20.49.31](./SwiftUI in 100 Days.assets/录屏2024-08-18 20.49.31-3985422.gif)
+
+```swift
+struct ContentView: View {
+    @State private var animationScale = 1.0
+    @State private var rotateAngle = 0.0
+    
+    var body: some View {
+        VStack {
+            Button("Rotate") {
+                withAnimation(.spring(duration: 1, bounce: 0.8)) {
+                    rotateAngle += 360
+                }
+            }
+            .padding()
+            .background(.blue)
+            .foregroundStyle(.white)
+            .clipShape(.capsule)
+            .rotation3DEffect(.degrees(rotateAngle), axis: (x: 0.0, y: 0.0, z: 1.0))
+        }
+    }
+}
+```
+
+### Day33：项目六第二部分
+
+#### 利用修饰符先后顺序，多动画修饰符能实现各种各样的效果：
+
+##### 效果一：
+
+![录屏2024-08-18 21.19.46](./SwiftUI in 100 Days.assets/录屏2024-08-18 21.19.46.gif)
+
+```swift
+    @State private var isAnimationOn = true
+    
+    var body: some View {
+        VStack {
+            Button("Toggle animation") {
+                isAnimationOn.toggle()
+            }
+            .padding()
+            .foregroundStyle(.white)
+            .background(isAnimationOn ? .blue : .indigo)
+            .animation(.default, value: isAnimationOn)
+            .clipShape(.rect(cornerRadius: isAnimationOn ? 0 : 15))
+            .animation(.spring(duration: 1, bounce: 0.9), value: isAnimationOn)
+        }
+    }
+```
+
+##### 效果二：
+
+![录屏2024-08-18 21.22.39](./SwiftUI in 100 Days.assets/录屏2024-08-18 21.22.39.gif)
+
+```swift
+struct ContentView: View {
+    @State private var isAnimationOn = true
+    
+    var body: some View {
+        VStack {
+            Button("Toggle animation") {
+                isAnimationOn.toggle()
+            }
+            .padding()
+            .foregroundStyle(.white)
+            .background(isAnimationOn ? .blue : .indigo)
+            .animation(nil, value: isAnimationOn)
+            .clipShape(.rect(cornerRadius: isAnimationOn ? 0 : 15))
+            .animation(.spring(duration: 1, bounce: 0.9), value: isAnimationOn)
+        }
+    }
+}
+```
+
+#### 手势：
+
+##### 拖拽卡片，松手就回到原位：
+
+![录屏2024-08-18 21.43.39](./SwiftUI in 100 Days.assets/录屏2024-08-18 21.43.39.gif)
+
+```swift
+struct ContentView: View {
+    @State private var dragAmount = CGSize.zero
+    
+    var body: some View {
+        VStack {
+            LinearGradient(colors: [.orange, .red], startPoint: .bottomLeading, endPoint: .bottomTrailing)
+                .frame(width: 300, height: 200)
+                .clipShape(.rect(cornerRadius: 12))
+                .offset(dragAmount)
+                .gesture(//手势创建
+                    DragGesture()
+                        .onChanged {dragAmount = $0.translation}//同步拖拽偏移量
+                        .onEnded {_ in dragAmount = .zero}//拖拽后回到原位
+                )
+        }
+    }
+}
+```
+
+##### 为干巴巴的拖拽手势加上动画：
+
+拖拽和归位都是bouncy的：
+
+![录屏2024-08-18 21.53.45](./SwiftUI in 100 Days.assets/录屏2024-08-18 21.53.45.gif)
+
+```swift
+struct ContentView: View {
+    @State private var dragAmount = CGSize.zero
+    
+    var body: some View {
+        VStack {
+            LinearGradient(colors: [.yellow, .red], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .frame(width: 300, height: 200)
+                .clipShape(.rect(cornerRadius: 12))
+                .offset(dragAmount)
+                .gesture(//手势创建
+                    DragGesture()
+                        .onChanged {dragAmount = $0.translation}//同步拖拽偏移量
+                        .onEnded {_ in dragAmount = .zero}//拖拽后回到原位
+                )
+                .animation(.bouncy, value: dragAmount)
+        }
+    }
+}
+```
+
+只有归位才有bouncy动画：
+
+```swift
+struct ContentView: View {
+    @State private var dragAmount = CGSize.zero
+    
+    var body: some View {
+        VStack {
+            LinearGradient(colors: [.yellow, .red], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .frame(width: 300, height: 200)
+                .clipShape(.rect(cornerRadius: 12))
+                .offset(dragAmount)
+                .gesture(
+                    DragGesture()
+                        .onChanged {dragAmount = $0.translation}
+                        .onEnded {_ in
+                            withAnimation(.bouncy) {
+                                dragAmount = .zero
+                            }
+                        }
+                )
+        }
+    }
+}
 ```
 

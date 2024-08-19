@@ -16,7 +16,7 @@ https://github.com/twostraws/HackingWithSwift
 
 ### Day1：变量、常量、字符串、数字
 
-- 给变量/**常量起名要使用驼峰法**
+- 给变量/常量起名要使用驼峰法
 - 开发过程中尽量用let创建字符串、常量等，var会不经意间被修改。
 - 字符串的长度不限
 - 多行字符串需要使用三个双引号"""...."""
@@ -3947,6 +3947,35 @@ struct ContentView: View {
                         }
                 )
         }
+    }
+}
+```
+
+##### 字符串+延迟拖移效果：
+
+![录屏2024-08-18 22.15.36](./SwiftUI in 100 Days.assets/录屏2024-08-18 22.15.36.gif)
+
+```swift
+struct ContentView: View {
+    let words = Array("Hello World")
+    @State private var dragAmount = CGSize.zero
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(0..<words.count, id: \.self) { num in
+                Text(String(words[num]))
+                    .font(.title)
+                    .padding(4)
+                    .background(.blue)
+                    .offset(dragAmount)
+                    .animation(.linear.delay(Double(num) / 20), value: dragAmount)//实现延迟拖移效果
+            }
+        }
+        .gesture(
+            DragGesture()
+                .onChanged {dragAmount = $0.translation}
+                .onEnded {_ in dragAmount = .zero}
+        )
     }
 }
 ```

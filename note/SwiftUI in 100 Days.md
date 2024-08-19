@@ -3980,3 +3980,128 @@ struct ContentView: View {
 }
 ```
 
+#### 动画效果：
+
+##### 比例动画：
+
+![录屏2024-08-19 20.05.17](./SwiftUI in 100 Days.assets/录屏2024-08-19 20.05.17.gif)
+
+```swift
+struct ContentView: View {
+    @State private var isShowRectangle = false
+    
+    var body: some View {
+        Button("Tap me") {
+            withAnimation {
+                isShowRectangle.toggle()
+            }
+        }
+        
+        if isShowRectangle {
+            Rectangle()
+                .fill(.blue)
+                .frame(width: 160, height: 160)
+                .clipShape(.rect(cornerRadius: 20))
+                .transition(.scale)//动画效果
+        }
+
+    }
+}
+```
+
+##### 先后不一致动画：
+
+![录屏2024-08-19 20.12.27](./SwiftUI in 100 Days.assets/录屏2024-08-19 20.12.27.gif)
+
+```swift
+.transition(.asymmetric(insertion: .slide, removal: .scale))//先后不一致动画：先滑入，后缩小消失
+```
+
+#### 自定义动画修饰符：
+
+![录屏2024-08-19 20.46.21](./SwiftUI in 100 Days.assets/录屏2024-08-19 20.46.21.gif)
+
+```swift
+struct OEMRotate: ViewModifier {
+    let angle: Double
+    let anchor: UnitPoint
+    
+    func body(content: Content) -> some View {
+        content
+            .rotationEffect(.degrees(angle) , anchor: anchor)
+            .clipped()//防止动画越界
+    }
+}
+
+extension AnyTransition {
+    static var pivot: AnyTransition {
+        .modifier(
+            active: OEMRotate(angle: -90, anchor: .topLeading),//激活状态
+            identity: OEMRotate(angle: 0, anchor: .topLeading)//非激活状态
+        )
+    }
+}
+
+struct ContentView: View {
+    @State private var isShowRectangle = false
+    
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(.blue)
+                .frame(width: 160, height: 160)
+                .shadow(radius: 10, x: 0, y: 0)
+            
+            if isShowRectangle {
+                Rectangle()
+                    .fill(.indigo)
+                    .frame(width: 160, height: 160)
+                    .shadow(radius: 10, x: 0, y: 0)
+                    .transition(.pivot)
+            }
+        }
+        .onTapGesture {
+            withAnimation {
+                isShowRectangle.toggle()
+                print(isShowRectangle)
+            }
+        }
+    }
+}
+```
+
+### Day34：项目六第三部分
+
+基于项目二
+
+#### 被选择的旗帜加上动画：
+
+![录屏2024-08-19 21.07.34](./SwiftUI in 100 Days.assets/录屏2024-08-19 21.07.34.gif)
+
+```swift
+@State private var selectedFlag = -1
+
+...
+
+.rotation3DEffect(.degrees(selectedFlag == indexOfFlag ? 360 : 0), axis: (x: 1.0, y: 0.0, z: 0.0))
+                        .animation(.bouncy, value: selectedFlag)
+
+...
+
+
+selectedFlag = indexOfFlag
+
+```
+
+#### 没有选择的旗帜加上不透明度、缩小、饱和度归0：
+
+![录屏2024-08-19 21.25.10](./SwiftUI in 100 Days.assets/录屏2024-08-19 21.25.10.gif)
+
+```swift
+.rotation3DEffect(.degrees(selectedFlag == indexOfFlag ? 360 : 0), axis: (x: 1.0, y: 0.0, z: 0.0))
+                        .opacity(selectedFlag == -1 || selectedFlag == indexOfFlag ? 1 : 0.5)
+                        .scaleEffect(selectedFlag == -1 || selectedFlag == indexOfFlag ? 1 : 0.5)
+												.saturation(selectedFlag == -1 || selectedFlag == indexOfFlag ? 1 : 0)//饱和度
+                        .animation(.bouncy, value: selectedFlag)
+```
+

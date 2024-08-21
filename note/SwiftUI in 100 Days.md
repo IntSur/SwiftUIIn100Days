@@ -4105,3 +4105,235 @@ selectedFlag = indexOfFlag
                         .animation(.bouncy, value: selectedFlag)
 ```
 
+
+
+### Day35：项目七第一部分
+
+#### 实际开发中，类和结构体的用法：
+
+类（引用类型）用于：多个地方共享同一份数据。（一旦有一个地方修改数据，那其他地方的数据都会被同步修改。）
+
+结构体（值类型）用于：多个地方不共享同一份数据。（有一个地方修改数据，其他地方的数据不会被修改到 。）
+
+##### @State用于监听struct实例：
+
+```swift
+struct User {
+    var userName = "IntSur"
+    var userID = "42"
+}
+
+struct ContentView: View {
+    @State private var user = User()//User 是一个结构体，是值类型。当我们在 ContentView 中使用 @State private var user = User() 时，user 是 User 结构体的一个副本。每次 SwiftUI 更新视图时，如果 user 的值发生变化，SwiftUI 实际上会创建一个新的 User 实例，而不是修改原来的实例。
+    var body: some View {
+        VStack {
+            Text("""
+                 UserName = \(user.userName)
+                 UserID = \(user.userID)
+                 """)
+            TextField("", text: $user.userName)
+            TextField("", text: $user.userID)
+        }
+        .padding()
+    }
+}
+```
+
+##### @State+@Observable用于监听class实例：
+
+```swift
+@Observable//加上@Observable，让类也可以被同步更新和绑定
+class User {
+    var userName = "IntSur"
+    var userID = "42"
+}
+
+struct ContentView: View {
+    @State private var user = User()//User 是一个类，是引用类型。当我们在 ContentView 中使用 @State private var user = User() 时，user 变量实际上是一个对 User 实例的引用。我们可以直接通过 user.userName 或 user.userID 修改这个实例的属性，而这些修改会在所有引用这个实例的地方反映出来。
+    
+    var body: some View {
+        VStack {
+            Text("""
+                 UserName = \(user.userName)
+                 UserID = \(user.userID)
+                 """)
+            TextField("", text: $user.userName)
+            TextField("", text: $user.userID)
+        }
+        .padding()
+    }
+}
+```
+
+##### 了解@Observable宏的工作原理：
+
+![截屏2024-08-21 21.44.26](./SwiftUI in 100 Days.assets/截屏2024-08-21 21.44.26.png)
+
+#### sheet：
+
+##### 调用sheet浮动界面视图：
+
+调用sheet浮动界面视图的方式类似于alert
+
+```swift
+struct SheetView: View {
+    let name: String
+    
+    var body: some View {
+        Text("Hello, \(name)!")
+    }
+}
+
+struct ContentView: View {
+    @State private var showSheet = true
+    
+    var body: some View {
+        Button("Show sheet") {
+            showSheet.toggle()
+        }
+        .sheet(isPresented: $showSheet) {
+            SheetView(name: "IntSur")
+        }
+    }
+}
+```
+
+##### 用@Environment实现退出sheet视图：
+
+```swift
+struct SheetView: View {
+    @Environment(\.dismiss) var dismiss//用@Environment实现退出sheet视图
+    
+    let name: String
+    
+    var body: some View {
+        Text("Hello, \(name)!")
+        Button("Tap to dismiss sheet") {
+            dismiss()
+        }
+    }
+}
+```
+
+#### 删除行：
+
+##### List+onDelete实现删除行：
+
+![截屏2024-08-21 22.28.06](./SwiftUI in 100 Days.assets/截屏2024-08-21 22.28.06.png)
+
+```swift
+struct ContentView: View {
+    @State private var rowNumbers = [Int]()
+    @State private var addedNumber = 1
+    
+    var body: some View {
+        List {
+            ForEach(rowNumbers, id: \.self) {
+                Text("Row \($0)")
+            }
+            .onDelete(perform: deleteRow)//调用onDelete，perform要求传入一个用来处理indexSet的闭包
+        }
+        
+        Button("Add a row") {
+            rowNumbers.append(addedNumber)
+            addedNumber += 1
+        }
+    }
+    
+    /*我们把闭包写成一个单独函数，用来处理indexSet。
+    这里的IndexSet是SwiftUI自包装的结构体，主要用于存储一组整数值，通常是表示集合中的索引。
+    它是一个高效的方式来管理整数范围，特别是在需要表示一组连续或非连续的整数索引时。*/
+    func deleteRow(at rowIndex: IndexSet) {
+        rowNumbers.remove(atOffsets: rowIndex)
+    }
+}
+```
+
+##### 批量删除多行：
+
+![截屏2024-08-21 22.34.18](./SwiftUI in 100 Days.assets/截屏2024-08-21 22.34.18.png)
+
+```swift
+NavigationStack {
+    ...
+    .toolbar {
+        EditButton()
+    }
+}        
+```
+
+#### app数据：
+
+app预加载数据大小应控制在512KB以内，否则开app会很卡。这个预加载内容一般用来放：用户最后一次打开app查看的最后一条新闻等。
+
+##### 原始方法实现存储用户上次使用app时的数据：
+
+用这种方法存储数据的缺点：用户快速退出时，最新的操作数据无法同步至UserDefaults区域中。
+
+```swift
+struct ContentView: View {
+    @State private var addedNumber = UserDefaults.standard.integer(forKey: "tap")
+    
+    var body: some View {
+        Text("Number is \(addedNumber)")
+        Button("Tap to add number") {
+            addedNumber += 1
+            /*
+             这行代码使用了 UserDefaults 来保存数据，是在 iOS 开发中非常常见的一种方式。
+             UserDefaults 提供了一种轻量级的方式来存储用户偏好设置或应用的简单配置数据。
+             
+             UserDefaults.standard:
+             UserDefaults 是一个用于在应用程序中存储键值对的类。
+             standard 是 UserDefaults 的单例实例，代表应用程序的默认数据库，用于存储和读取数据。
+             
+             set(_:forKey:):
+             set 方法用于将数据存储到 UserDefaults 中。
+             第一个参数 addedNumber 是你想要保存的数据，可以是 Int、Double、String、Bool、Array、Dictionary 或其他 Property List 类型。
+             forKey: "tap" 是存储这个数据所使用的键，"tap" 是你用来标识和检索这个值的字符串键。
+             */
+            UserDefaults.standard.set(addedNumber, forKey: "tap")
+        }
+    }
+}
+```
+
+##### 用内容包装器@AppStorage
+
+这种写法的好处：用户快速退出时，最新的操作数据可以同步至UserDefaults区域中。
+
+```swift
+struct ContentView: View {
+    @AppStorage("tapNumber") private var addedNumber = 0//@AppStorage括号里的key可以随意命名
+    
+    var body: some View {
+        Text("Number is \(addedNumber)")
+        Button("Tap to add number") {
+            addedNumber += 1
+        }
+    }
+}
+```
+
+##### 将app数据转码成json格式（或者其他类型的数据格式）：
+
+```swift
+struct UserInfo: Codable {//Codable:可编码的
+    let firstName: String
+    let secondName: String
+}
+
+struct ContentView: View {
+    @State private var user = UserInfo(firstName: "Steve", secondName: "Jobs")
+    
+    var body: some View {
+        Button("Save user info") {
+            let encoder = JSONEncoder()//调用JSON编码器
+            
+            if let userData = try? encoder.encode(user) {//将用户数据编码为JSON格式
+                UserDefaults.standard.set(userData, forKey: "usrInfo")//将JSON格式数据存到用户默认数据内存中
+            }
+        }
+    }
+}
+```
+

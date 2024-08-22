@@ -4107,7 +4107,7 @@ selectedFlag = indexOfFlag
 
 
 
-### Day35：项目七第一部分
+### Day36：项目七第一部分
 
 #### 实际开发中，类和结构体的用法：
 
@@ -4332,6 +4332,246 @@ struct ContentView: View {
             if let userData = try? encoder.encode(user) {//将用户数据编码为JSON格式
                 UserDefaults.standard.set(userData, forKey: "usrInfo")//将JSON格式数据存到用户默认数据内存中
             }
+        }
+    }
+}
+```
+
+### Day37：项目七第二部分
+
+#### iExpense基本界面：
+
+![截屏2024-08-22 19.15.49](./SwiftUI in 100 Days.assets/截屏2024-08-22 19.15.49.png)
+
+```swift
+struct ExpenseItem {
+    let name: String
+    let type: String
+    let amount: Double
+}
+
+@Observable
+class Expenses {
+    var items = [ExpenseItem]()
+}
+
+struct ContentView: View {
+    @State private var expenses = Expenses()
+    
+    var body: some View {
+        NavigationStack {
+            VStack {
+                List {
+                    ForEach(expenses.items, id: \.name) {
+                        Text("\($0.name)")
+                    }
+                    .onDelete(perform: { indexSet in
+                        expenses.items.remove(atOffsets: indexSet)
+                    })
+                }
+            }
+            .navigationTitle("iExpense")
+            .toolbar {
+                Button("Add an expense", systemImage: "plus") {
+                    expenses.items.append(ExpenseItem(name: "add expense test", type: "lunch", amount: 5))
+                }
+            }
+        }
+    }
+}
+```
+
+#### 解决id.name不唯一的问题：
+
+虽然在上面我们新建了动态list、用“+”加号toolbar新增item、设置了左滑删除item数据。但是foreach所用的id并不唯一，这是一个严重的逻辑错误，所以我们用以下代码解决这个不唯一问题。
+
+##### UUID
+
+```swift
+struct ExpenseItem: Identifiable {//Identifiable协议专用于创建独一无二的数据
+    let id = UUID()//创建一个独一无二的编码：UUID
+    let name: String
+    let type: String
+    let amount: Double
+}
+...
+ForEach(expenses.items) {//同时ForEach可以不用写id
+                        Text("\($0.name)")
+                    }
+```
+
+#### 新增一个AddView
+
+##### 新增addview.swift，给用户填写消费信息：
+
+```swift
+import SwiftUI
+
+struct AddView: View {
+    @State private var name = ""
+    @State private var type = "Personal"
+    @State private var amount = 0.0
+    
+    let types = ["Buisness", "Personal"]
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                TextField("Name", text: $name)
+                
+                Picker("Type", selection: $type) {
+                    ForEach(types, id: \.self) {
+                        Text("\($0)")
+                    }
+                }
+                
+                TextField("Amount", value: $amount, format: .currency(code: "USD"))
+                    .keyboardType(.decimalPad)
+            }
+        }
+    }
+}
+
+#Preview {
+    AddView()
+}
+```
+
+##### 用sheet连接ContentView和AddView
+
+```swift
+//ContentView.Swift
+@State private var showAddView = false
+  
+  .toolbar {
+      Button("Add an expense", systemImage: "plus") {
+          showAddView = true
+      }
+  }
+  .sheet(isPresented: $showAddView) {
+      AddView(expense: expenses)//将ContenView中创建的Expense实例传递到AddView中
+  }
+```
+
+```swift
+//AddView.Swift
+...
+var expense: Expenses
+...
+#Preview {
+    AddView(expense: Expenses())
+}
+```
+
+#### 数据提交功能：
+
+```swift
+//AddView.Swift
+Button("Save") {
+                    expense.items.append(ExpenseItem(name: name, type: type, amount: amount))
+                }
+```
+
+#### 用JSON编解码方式保存用户数据：
+
+这样，即使用户退出了app，也能将最后使用的数据保存下来。
+
+```swift
+struct ExpenseItem: Identifiable, Codable {//Identifiable协议专用于创建独一无二的数据
+    var id = UUID()//创建一个独一无二的编码：UUID。这里不能使用let，是因为：常量不可被编码成JSON。
+    let name: String
+    let type: String
+    let amount: Double
+}
+
+@Observable
+class Expenses {
+    var items = [ExpenseItem]() {
+        didSet {
+            if let encodedData = try? JSONEncoder().encode(items) {//转码成JSON
+                UserDefaults.standard.set(encodedData, forKey: "expenseItems")//将JSON数据传入app退出也不丢失数据的内存中
+            }
+        }
+    }
+    
+    init() {
+        if let decodedData = UserDefaults.standard.data(forKey: "expenseItems") {//解码成ExpenseItem
+            if let decodedItems = try? JSONDecoder().decode([ExpenseItem].self, from: decodedData) {//将解码出的数据赋值
+                items = decodedItems
+                return
+            }
+        }
+        items = []
+    }
+}
+```
+
+#### 按下Save按钮后退出sheet：
+
+```swift
+@Environment(\.dismiss) var dismiss
+...
+.toolbar {
+                Button("Save") {
+                    expense.items.append(ExpenseItem(name: name, type: type, amount: amount))
+                    dismiss()
+                }
+            }
+```
+
+#### 显示详细信息：
+
+![截屏2024-08-22 21.04.59](./SwiftUI in 100 Days.assets/截屏2024-08-22 21.04.59.png)
+
+```swift
+List {
+                ForEach(expenses.items) { item in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(item.name)
+                                .font(.headline)
+                            Text(item.type)
+                        }
+                        
+                        Spacer()
+                        
+                        Text(item.amount, format: .currency(code: "USD"))
+                    }
+                }
+                .onDelete(perform: { indexSet in
+                    expenses.items.remove(atOffsets: indexSet)
+                })
+            }
+```
+
+### Day38：项目七第三部分
+
+#### iExpense优化：
+
+##### 获取用户环境偏好货币单位：
+
+```swift
+let currency = Locale.current.currency?.identifier ?? "USD"
+...
+TextField("Amount", value: $amount, format: .currency(code: currency))
+```
+
+##### 自定义不同货币数值下的样式：
+
+![截屏2024-08-22 21.33.34](./SwiftUI in 100 Days.assets/截屏2024-08-22 21.33.34.png)
+
+```swift
+//新增OEM-currencyTitle.swift
+import SwiftUI
+
+extension View {
+    func oemCurrencyStyle(items: ExpenseItem) -> some View {
+        if items.amount < 10 {
+            return self.font(.body)
+        } else if items.amount < 100 {
+            return self.font(.title3)
+        } else {
+            return self.font(.title)
         }
     }
 }

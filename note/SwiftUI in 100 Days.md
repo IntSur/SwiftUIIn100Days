@@ -4674,3 +4674,299 @@ struct TypeView: View {
 }
 ```
 
+### Day39：项目八第一部分
+
+#### Image
+
+##### 设置图片大小的相关修饰符：
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Image(.swiftui)
+                .resizable()//自适应大小
+                .scaledToFit()//适应frame
+                .scaledToFill()//填充frame
+                .frame(width: 80, height: 100)
+//                .clipped()//裁剪到框架大小
+        }
+        .padding()
+    }
+}
+```
+
+##### 设置相对大小：
+
+![截屏2024-08-24 16.42.51](./SwiftUI in 100 Days.assets/截屏2024-08-24 16.42.51.png)
+
+```swift
+Image(.swiftui)
+    .resizable()
+    .containerRelativeFrame(.vertical) { size, axis in//设置垂直方向上，image的size为父视图size的0.1倍
+        size * 0.1
+    }
+```
+
+#### ScrollView
+
+##### 创建滚动视图、懒加载Stack：
+
+ScrollView中用ForEach一下子生成很多视图时，系统会卡顿，LazyStack能节约资源，当视图划到哪些地方再加载其数据。
+
+![截屏2024-08-24 19.49.05](./SwiftUI in 100 Days.assets/截屏2024-08-24 19.49.05.png)
+
+```swift
+struct OEMText: View {
+    var text: String
+    
+    var body: some View {
+        Text(text)
+    }
+    
+    init(text: String) {
+        print("creatd an oem view \(text)")
+        self.text = text
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        ScrollView(.horizontal) {//可以是水平 可以是垂直
+            LazyHStack {//ScrollView中用ForEach一下子生成很多视图时，系统会卡顿，LazyStack能节约资源，当视图划到哪些地方再加载其数据。
+                ForEach(1..<100) {
+                    OEMText(text: "\($0)")
+                }
+            }
+//            .frame(maxWidth: .infinity)
+        }
+    }
+}
+```
+
+#### NavigationLink
+
+![录屏2024-08-24 20.20.21](./SwiftUI in 100 Days.assets/录屏2024-08-24 20.20.21.gif)
+
+跳转至其他页面有sheet、navigationlink。sheet一般用于设置、表单信息收集；NavigationLink用于显示多内容信息。
+
+```swift
+struct ContentView: View {
+    @State private var messages = ""
+    
+    var body: some View {
+        NavigationStack {
+            NavigationLink("Send Message") {
+                Text("BestFriend")
+                    .padding(.vertical)
+                
+                Spacer()
+                
+                TextField("Input your message", text: $messages)
+                    .padding(10)
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(8)
+                    .padding(.horizontal)
+            }
+            .navigationTitle("Message")
+        }
+    }
+}
+```
+
+##### navigationlink多文本用label写法：
+
+```swift
+struct ContentView: View {
+    @State private var messages = ""
+    
+    var body: some View {
+        NavigationStack {
+            NavigationLink {
+                Text("BestFriend")
+                    .padding(.vertical)
+            } label: {
+                VStack {
+                    Text("Send a message")
+                    Text("To your friend")
+                }
+            }
+            .navigationTitle("Message")
+        }
+    }
+}
+```
+
+##### navigationlink+foreach批量生成行视图：
+
+生成的行会自动有一个小箭头，告诉用户这些行可以点击：
+
+```swift
+struct ContentView: View {
+    @State private var messages = ""
+    
+    var body: some View {
+        NavigationStack {
+            List(0..<100) { row in
+                NavigationLink("Row \(row)") {
+                    Text("Detail \(row)")
+                }
+            }
+            .navigationTitle("Message")
+        }
+    }
+}
+```
+
+#### 多层JSON decode解析：
+
+```swift
+struct People: Codable {
+    let name: String
+    let address: Address
+}
+
+struct Address: Codable {
+    let street: String
+    let city: String
+}
+
+struct ContentView: View {
+    var body: some View {
+            Button("Decode JSON") {
+                let JSON_Data = """
+                {
+                    "name": "Taylor Swift",
+                    "address": {
+                        "street": "555, NY Road",
+                        "city": "New York"
+                    }
+                }
+                """
+                
+                let data = Data(JSON_Data.utf8)
+                let decoder = JSONDecoder()
+                
+                if let datas = try? decoder.decode(People.self, from: data) {
+                    print(datas.address.city)
+                }
+            }
+    }
+}
+```
+
+#### 多行表格Grid：
+
+##### 固定列宽：
+
+![截屏2024-08-24 21.28.46](./SwiftUI in 100 Days.assets/截屏2024-08-24 21.28.46.png)
+
+```swift
+struct ContentView: View {
+    let lines = [
+        GridItem(.fixed(80)),
+        GridItem(.fixed(80)),
+        GridItem(.fixed(80))//固定列宽为80pt
+    ]
+    var body: some View {
+        ScrollView {
+            LazyVGrid(columns: lines) {
+                ForEach(0..<1000) {
+                    Text("\($0)")
+                }
+            }
+        }
+    }
+}
+```
+
+##### 自适应列宽：
+
+![截屏2024-08-24 21.37.04](./SwiftUI in 100 Days.assets/截屏2024-08-24 21.37.04.png)
+
+```swift
+struct ContentView: View {
+    let lines = [
+        GridItem(.adaptive(minimum: 60, maximum: 100))
+    ]
+    var body: some View {
+        ScrollView {
+            LazyVGrid(columns: lines) {
+                ForEach(0..<100) {
+                    Text("\($0)")
+                }
+            }
+        }
+    }
+}
+```
+
+### Day40：项目八第二部分
+
+#### 导入素材文件：
+
+json+jpgs
+
+#### 新建宇航员swift文件：
+
+```swift
+//Astronauts.swift
+import Foundation
+
+struct Astronauts: Codable, Identifiable {
+    let id: String
+    let name: String
+    let description: String
+}
+```
+
+#### 新建自定义bundle拓展文件：
+
+##### 拓展一个能自定义解码JSON数据的方法：
+
+```swift
+//Bundle-Codable.swift
+import Foundation
+
+extension Bundle {
+    func decodeJSON(_ file: String) -> [String: Astronauts] {
+        guard let fileURL = Bundle.main.url(forResource: file, withExtension: nil) else {//拿文件URL
+            fatalError("Open \(file) fileURL failed")
+        }
+        
+        guard let data = try? Data(contentsOf: fileURL) else {//提取文件里的JSON内容
+            fatalError("Export \(file) JSON data failed")
+        }
+        
+        let decoder = JSONDecoder()
+        
+        guard let decodedStrings = try? decoder.decode([String: Astronauts].self, from: data) else {//解码
+            fatalError("decode \(file) JSON to String failed")
+        }
+        
+        return decodedStrings
+    }
+}
+```
+
+##### 优化解码debug：
+
+```swift
+let decoder = JSONDecoder()
+        
+        //十分好用的decode报错模版,推荐在自己的app中使用
+        do {
+            return try decoder.decode([String: Astronauts].self, from: data)
+        } catch DecodingError.keyNotFound(let key, let context) {
+            fatalError("Failed to decode \(file) from bundle due to missing key '\(key.stringValue)' - \(context.debugDescription)")
+        } catch DecodingError.valueNotFound(let type, let context) {
+            fatalError("Failed to decode \(file) from bundle due to missing \(type) value - \(context.debugDescription)")
+        } catch DecodingError.typeMismatch(_, let context) {
+            fatalError("Failed to decode \(file) from bundle due to type mismatch - \(context.debugDescription)")
+        } catch DecodingError.dataCorrupted(_) {
+            fatalError("Failed to decode \(file) from bundle because it appears to be invaild JSON.")
+        } catch {
+            fatalError("Failed to decode \(file) from bundle: \(error.localizedDescription)")
+        }
+```
+

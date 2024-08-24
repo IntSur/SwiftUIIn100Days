@@ -4577,3 +4577,100 @@ extension View {
 }
 ```
 
+#### 根据消费类别进行分组：
+
+```swift
+@Observable
+class Expenses {
+   ...
+    
+    var personalItems: [ExpenseItem] {
+        items.filter { $0.type == "Personal" }
+    }
+
+    var buisnessItems: [ExpenseItem] {
+        items.filter { $0.type == "Buisness" }
+    }
+    
+    ...
+}
+```
+
+#### 重写删除item函数，需分为删除buisness和personal：
+
+```swift
+struct ExpenseItem: Identifiable, Codable, Equatable //加上Equatable让实例可以被比较、被用上firstIndex。
+
+...
+
+func deleteItems(at offsets: IndexSet, in inputItems: [ExpenseItem]) {
+        var indexOfDelItems = IndexSet()
+        
+        for offset in offsets {
+            let item = inputItems[offset]
+            
+            if let index = expenses.items.firstIndex(of: item) {
+                indexOfDelItems.insert(index)
+            }
+        }
+        
+        expenses.items.remove(atOffsets: indexOfDelItems)
+    }
+    
+func deleteBuisnessItems(at offsets: IndexSet) {
+    deleteItems(at: offsets, in: expenses.buisnessItems)
+}
+    
+func deletePersonalItems(at offsets: IndexSet) {
+    deleteItems(at: offsets, in: expenses.personalItems)
+}
+```
+
+#### 新建分类后的section视图：
+
+![截屏2024-08-24 13.39.59](./SwiftUI in 100 Days.assets/截屏2024-08-24 13.39.59.png)
+
+```swift
+//ContentView.swift
+List {
+                TypeView(sectionTitle: "Personal", expenses: expenses.personalItems, deleteUsingType: deletePersonalItems)
+                
+                TypeView(sectionTitle: "Buisness", expenses: expenses.buisnessItems, deleteUsingType: deleteBuisnessItems)
+            }
+
+//TypeView.swift
+import SwiftUI
+
+struct TypeView: View {
+    let sectionTitle: String
+    let expenses: [ExpenseItem]
+    let deleteUsingType: (IndexSet) -> Void
+    
+    let currency = Locale.current.currency?.identifier ?? "USD"
+    
+    var body: some View {
+            Section(sectionTitle) {
+                ForEach(expenses) { item in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(item.name)
+                                    .font(.headline)
+                                Text(item.type)
+                            }
+                            
+                            Spacer()
+                            
+                            Text(item.amount, format: .currency(code: currency))
+                                .oemCurrencyStyle(items: item)
+                        }
+                }
+                .onDelete(perform: deleteUsingType)
+            }
+    }
+}
+
+#Preview {
+    TypeView(sectionTitle: "", expenses: [ExpenseItem](), deleteUsingType: {_ in })
+}
+```
+

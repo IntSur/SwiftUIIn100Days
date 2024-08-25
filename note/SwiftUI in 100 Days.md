@@ -4954,7 +4954,7 @@ extension Bundle {
 ```swift
 let decoder = JSONDecoder()
         
-        //十分好用的decode报错模版,推荐在自己的app中使用
+        //!!!十分好用的decode报错模版,推荐在自己的app中使用
         do {
             return try decoder.decode([String: Astronauts].self, from: data)
         } catch DecodingError.keyNotFound(let key, let context) {
@@ -4968,5 +4968,511 @@ let decoder = JSONDecoder()
         } catch {
             fatalError("Failed to decode \(file) from bundle: \(error.localizedDescription)")
         }
+```
+
+##### 加入missionsJSON解析：
+
+##### 加入missions结构体：
+
+```swift
+//Missions.swift
+import Foundation
+
+struct Missions: Codable, Identifiable {
+    struct Roles: Codable {//嵌套结构体可以理清结构体逻辑
+        let name: String
+        let role: String 
+    }
+    
+    let id: Int
+    let launchDate: String?
+    let crewRoles: [Roles]
+    let description: String
+}
+```
+
+##### 使用泛型拓展方法：
+
+使用泛型代替拓展方法的返回值，这样就不用为了不同的返回值些不同的拓展方法。
+
+```swift
+import Foundation
+
+extension Bundle {
+    func decodeJSON<T: Codable>(_ file: String) -> T {//使用泛型，让返回值不用固定为单一返回类型
+        ...
+        do {
+            return try decoder.decode(T.self, from: data)
+        }
+      	...
+    }
+}
+```
+
+#### 写出MoonShoot样式：
+
+![录屏2024-08-25 11.43.27](./SwiftUI in 100 Days.assets/录屏2024-08-25 11.43.27.gif)
+
+```swift
+    let columns = [
+        GridItem(.adaptive(minimum: 150))
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: columns) {
+                    ForEach(missionsData) { mission in
+                        NavigationLink {
+                            Text(mission.description)
+                                .padding()
+                        } label: {
+                            VStack {
+                                Image("apollo\(mission.id)")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                
+                                Text(mission.displayName)
+                                    .font(.headline)
+                                Text(mission.launchDate ?? "N/A")
+                                    .font(.caption)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("MoonShoot🚀")
+        }
+    }
+```
+
+##### 自定义解码数据的日期格式：
+
+swift有专针对于JSON的日期格式解码器API，用该API能自定义日期格式。
+
+```swift
+//Bundle-Codable.swift
+//告诉解码器，JSON里的日期格式是什么样的，年是哪个字段、月是哪个字段、日是哪个字段。这里的格式该怎么写取决于JSON文件里的日期格式。
+    let decoder = JSONDecoder()
+    let dateFormatter = DateFormatter()//创建一个 DateFormatter 实例
+    dateFormatter.dateFormat = "y-MM-dd"//将decoder日期格式设置为日期格式 "2024-08-24"
+    decoder.dateDecodingStrategy = .formatted(dateFormatter)//将 decoder 的 dateDecodingStrategy 属性设置为使用 dateFormatter 的日期格式。
+
+//Missions.swift
+//将解码出的日期收录到Date类型的变量
+let launchDate: Date?//只有在解码时设置了解码日期格式 才能把launchDate类型注释为Date
+...
+var oemLaunchDate: String {
+    launchDate?.formatted(date: .abbreviated, time: .omitted) ?? "N/A"//设置自定义时间格式
+}
+
+//ContentView.swift
+Text(mission.oemLaunchDate)
+          .font(.caption)
+```
+
+#### 制作卡片式滚动界面
+
+##### 自定义app所用到的颜色：
+
+为自己的app添加颜色有两种方法：
+
+1.在Assets中直接添加颜色
+
+2.直接用代码添加（这种方法更适合多人开发，其他开发人员能一目了然）
+
+在这里我们演示第二种方式：
+
+```swift
+//  OEM-ShapeStyle.swift
+
+import SwiftUI
+
+extension ShapeStyle where Self == Color {//where 子句是一个约束，限定这个扩展只在 Self 类型等于 Color 时生效。Self 是一个特定类型的占位符，在协议上下文中，Self 代表当前类型（也就是遵循协议的类型）。
+    static var darkBackground: Color {//static 关键字用于定义属于类型本身的属性或方法，而不是类型的具体实例。
+        Color(red: 0.1, green: 0.1, blue: 0.2)
+    }
+    
+    static var lightBackground: Color {
+        Color(red: 0.2, green: 0.2, blue: 0.3)
+    }
+}
+```
+
+##### 美化卡片界面：
+
+![录屏2024-08-25 14.58.04](./SwiftUI in 100 Days.assets/录屏2024-08-25 14.58.04.gif)
+
+```swift
+var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: columns) {
+                    ForEach(missionsData) { mission in
+                        NavigationLink {
+                            Text(mission.description)
+                                .padding()
+                        } label: {
+                            VStack {
+                                Image(mission.image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100, height: 100)
+                                    .padding()
+                                
+                                VStack {
+                                    Text(mission.displayName)
+                                        .font(.headline)
+                                        .foregroundStyle(.white)
+                                    Text(mission.oemLaunchDate)
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
+                                .padding(.vertical)
+                                .frame(maxWidth: .infinity)
+                                .background(.lightBackground)
+                            }
+                            .clipShape(.rect(cornerRadius: 10))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(.lightBackground)
+                            }
+                        }
+                    }
+                }
+                .padding([.horizontal, .bottom])
+            }
+            .navigationTitle("MoonShoot🚀")
+            .background(.darkBackground)
+            .preferredColorScheme(.dark)
+        }
+    }
+```
+
+### Day41：项目八第三部分
+
+#### 构建MissionView界面：
+
+![截屏2024-08-25 15.22.04](./SwiftUI in 100 Days.assets/截屏2024-08-25 15.22.04.png)
+
+```swift
+//  MissionView.swift
+import SwiftUI
+
+struct MissionView: View {
+    let mission: Missions
+    
+    var body: some View {
+        ScrollView {
+            VStack {
+                Image(mission.image)
+                    .resizable()
+                    .scaledToFit()
+                    .containerRelativeFrame(.horizontal) { width, axis in
+                        width * 0.6
+                    }
+                VStack(alignment: .leading) {
+                    Text("Mission highlights")
+                        .font(.title.bold())
+                        .padding(.bottom, 5)
+                    
+                    Text(mission.description)
+                }
+                .padding(.horizontal)
+            }
+            .padding(.bottom)
+        }
+        .navigationTitle(mission.displayName)
+        .navigationBarTitleDisplayMode(.inline)
+        .background(.darkBackground)
+        .preferredColorScheme(.dark)
+    }
+}
+
+#Preview {
+    let missionsData: [Missions] = Bundle.main.decodeJSON("missions.json")
+    return MissionView(mission: missionsData[0])
+}
+```
+
+#### 在任务详细信息中显示此次任务船员的详细信息：
+
+这个步骤中，一定要考虑未匹配宇航员的情况。以避免让app从后端接受垃圾无用的json信息。这在上架app时会被审核。
+
+![录屏2024-08-25 19.38.44](./SwiftUI in 100 Days.assets/录屏2024-08-25 19.38.44.gif)
+
+```swift
+//MissionView.swift
+struct CrewMember {//将missions、astronauts里同一个宇航员的信息集合在一起
+    let role: String
+    let astronaut: Astronauts
+}
+
+let mission: Missions
+let crews: [CrewMember]
+...
+init(mission: Missions, astronauts: [String: Astronauts]) {//在初始化任务详细信息页视图时，同时构建自定义、需要组建missions、astronauts部分信息的宇航员的信息
+        self.mission = mission
+        
+        self.crews = mission.crew.map{ crews in
+            if let astronaut = astronauts[crews.name] {
+                return CrewMember(role: crews.name, astronaut: astronaut)
+            } else {
+                fatalError("Missing astronauts' name.")//考虑未匹配宇航员的情况
+            }
+        }
+    }
+```
+
+#### 自定义分隔栏：
+
+![](./SwiftUI in 100 Days.assets/截屏2024-08-25 19.53.04.png)
+
+```swift
+Rectangle()//自定义分隔栏
+  .frame(height: 2)
+  .foregroundColor(.lightBackground)
+  .padding(.vertical)
+```
+
+#### 构建宇航员详细信息界面：
+
+![录屏2024-08-25 20.33.40](./SwiftUI in 100 Days.assets/录屏2024-08-25 20.33.40.gif)
+
+```swift
+//  AstronautsView.swift
+
+import SwiftUI
+
+struct AstronautsView: View {
+    let astronaut: Astronauts
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading) {
+                Image(astronaut.id)
+                    .resizable()
+                    .scaledToFit()
+                    .cornerRadius(10)
+                    .shadow(radius: 20)
+                    .padding(.bottom, 10)
+                
+                Rectangle()
+                    .frame(height: 2)
+                    .foregroundColor(.lightBackground)
+                    .padding(.vertical)
+                
+                Text("Description")
+                    .font(.title.bold())
+                    .padding(.bottom, 6)
+                
+                Text(astronaut.description)
+                    
+            }
+            .padding()
+        }
+        .background(.darkBackground)
+        .navigationTitle(astronaut.name)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+#Preview {
+    let astronautsData: [String: Astronauts] = Bundle.main.decodeJSON("astronauts.json")
+    
+    return AstronautsView(astronaut: astronautsData["grissom"]!)
+        .preferredColorScheme(.dark)
+}
+
+```
+
+### Day42：项目八第四部分
+
+#### 在任务详情页中添加发射日期：
+
+![截屏2024-08-25 20.49.56](./SwiftUI in 100 Days.assets/截屏2024-08-25 20.49.56.png)
+
+```swift
+if let launchDate = mission.launchDate {
+    Label(launchDate.formatted(date: .complete, time: .omitted), systemImage: "calendar")
+        .padding(.top)
+}
+```
+
+#### 优化代码结构：
+
+##### 打包自定义分隔栏:
+
+```swift
+//  OEM-Divider.swift
+
+import SwiftUI
+
+struct OEM_Divider: View {
+    var body: some View {
+        Rectangle()
+            .frame(height: 2)
+            .foregroundColor(.lightBackground)
+            .padding(.vertical)
+    }
+}
+
+#Preview {
+    OEM_Divider()
+}
+```
+
+##### 打包Crew ScrollView：
+
+```swift
+//  CrewScrollView.swift
+import SwiftUI
+
+struct CrewScrollView: View {
+    let crews: [MissionView.CrewMember]
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+                ForEach(crews, id: \.role) { crew in
+                    NavigationLink {
+                        AstronautsView(astronaut: crew.astronaut)
+                    } label: {
+                        HStack {
+                            Image(crew.astronaut.id)
+                                .resizable()
+                                .frame(width: 104, height: 72)
+                                .clipShape(.capsule)
+                                .overlay {
+                                    Capsule()
+                                        .strokeBorder(.gray, lineWidth: 1)
+                                        .shadow(radius: 20)
+                                }
+                                
+                            VStack(alignment: .leading) {
+                                Text(crew.astronaut.name)
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Text(crew.role)
+                                    .foregroundStyle(.gray)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    CrewScrollView(crews: [])
+}
+```
+
+#### 切换网格和列表视图：
+
+![录屏2024-08-25 21.58.31](./SwiftUI in 100 Days.assets/录屏2024-08-25 21.58.31.gif)
+
+```swift
+//  GridLayout.swift
+
+import SwiftUI
+
+struct GridLayout: View {
+    let astronautsData: [String: Astronauts]//使用泛型后，需要在调用泛型的地方指明类型
+    let missionsData: [Missions]
+    
+    let columns = [
+        GridItem(.adaptive(minimum: 150))
+    ]
+    
+    var body: some View {
+        ScrollView {
+            LazyVGrid(columns: columns) {
+                ForEach(missionsData) { mission in
+                    NavigationLink {
+                        MissionView(mission: mission, astronauts: astronautsData)
+                    } label: {
+                        VStack {
+                            Image(mission.image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 100, height: 100)
+                                .padding()
+                            
+                            VStack {
+                                Text(mission.displayName)
+                                    .font(.headline)
+                                    .foregroundStyle(.white)
+                                Text(mission.oemLaunchDate)
+                                    .font(.caption)
+                                    .foregroundStyle(.gray)
+                            }
+                            .padding(.vertical)
+                            .frame(maxWidth: .infinity)
+                            .background(.lightBackground)
+                        }
+                        .clipShape(.rect(cornerRadius: 10))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(.lightBackground)
+                        }
+                    }
+                }
+            }
+            .padding([.horizontal, .bottom])
+        }
+        .navigationTitle("MoonShoot🚀")
+        .background(.darkBackground)
+        .preferredColorScheme(.dark)//强制改变app只在暗色模式中使用
+    }
+}
+
+#Preview {
+    GridLayout(astronautsData: Bundle.main.decodeJSON("astronauts.json"), missionsData: Bundle.main.decodeJSON("missions.json"))
+        .preferredColorScheme(.dark)
+}
+
+//ContentView.swift
+struct ContentView: View {
+    let astronautsData: [String: Astronauts] = Bundle.main.decodeJSON("astronauts.json")//使用泛型后，需要在调用泛型的地方指明类型
+    let missionsData: [Missions] = Bundle.main.decodeJSON("missions.json")
+    
+    @State private var viewAsList = false
+    
+    var body: some View {
+        NavigationStack {
+            Group {
+                if viewAsList {
+                    ListLayout(astronautsData: astronautsData, missionsData: missionsData)
+                } else {
+                    GridLayout(astronautsData: astronautsData, missionsData: missionsData)
+                }
+            }
+            .navigationTitle("MoonShoot🚀")
+            .background(.darkBackground)
+            .preferredColorScheme(.dark)//强制改变app只在暗色模式中使用
+            .toolbar {
+                Button {
+                    viewAsList.toggle()
+                } label: {
+                    if viewAsList {
+                        Label("View as Grid", systemImage: "square.grid.2x2")
+                    } else {
+                        Label("View as List", systemImage: "list.dash")
+                    }
+                }
+            }
+        }        
+    }
+}
+```
+
+##### 记住上次打开app的视图风格（网格/列表）：
+
+```swift
+@AppStorage("ViewType") private var viewAsList = false
 ```
 

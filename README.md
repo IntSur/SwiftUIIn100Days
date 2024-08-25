@@ -32,7 +32,13 @@ B站搬运：https://www.bilibili.com/video/BV1hZ42127Qu/?spm_id_from=333.788&vd
 
 ✅ Day29～31：猜字游戏 WordScramble 案例
 
-❓Day32：...
+✅ Day32～34：动画效果
+
+✅ Day36～38：记账应用 iExpense 案例
+
+✅ Day39～42：教育应用 MoonShoot🚀 案例
+
+❓Day43：...
 
 
 

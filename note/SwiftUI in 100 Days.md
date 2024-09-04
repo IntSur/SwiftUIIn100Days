@@ -5476,3 +5476,118 @@ struct ContentView: View {
 @AppStorage("ViewType") private var viewAsList = false
 ```
 
+### Day43：项目九第一部分
+
+#### NavigationLink的缺点：
+
+```swift
+struct newView: View {
+    var number: Int
+    
+    var body: some View {
+        Text("Detail View \(number)")
+    }
+    
+    init(number: Int) {
+        self.number = number
+        print("Init() loaded number:\(number)")
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationStack {
+            NavigationLink("Tap me") {
+                newView(number: 1000)
+            }
+        }
+    }
+}
+```
+
+这样的NavigationLink写法所带来的一个问题：在没有跳转页面前，SwiftUI已经提前加载了新页面的数据。![截屏2024-09-04 22.24.01](./SwiftUI in 100 Days.assets/截屏2024-09-04 22.24.01.png)
+
+#### 解决上面的缺点：
+
+使用 NavigationLink(title: StringProtocolStringProtocol,  value: Decodable & Encodable & Hashable))
+
+![截屏2024-09-04 22.04.30](./SwiftUI in 100 Days.assets/截屏2024-09-04 22.04.30.png)
+
+```swift
+struct newView: View {
+    var number: Int
+    
+    var body: some View {
+        Text("Detail View \(number)")
+    }
+    
+    init(number: Int) {
+        self.number = number
+        print("Init() loaded number:\(number)")
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        NavigationStack {
+            List(0..<100) { i in
+                NavigationLink("List No.\(i)", value: i)
+            }
+            .navigationDestination(for: Int.self) { i in
+                newView(number: i)
+            }
+        }
+    }
+}
+```
+
+#### 用自定义结构体作为页面跳转所用到的值：
+
+![录屏2024-09-04 22.38.35](./SwiftUI in 100 Days.assets/录屏2024-09-04 22.38.35.gif)
+
+```swift
+struct StudentInfo: Hashable {
+    var id = UUID()
+    var name: String
+    var number: Int
+}
+
+struct newView: View {
+    var number: Int
+    
+    var body: some View {
+        Text("Detail View \(number)")
+    }
+    
+    init(number: Int) {
+        self.number = number
+        print("Init() loaded number:\(number)")
+    }
+}
+
+struct ContentView: View {
+    var studentsInfo = [StudentInfo(name: "fan", number: 36)]
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(studentsInfo, id: \.self) { student in
+                    NavigationLink("List No.\(student.number)", value: student)
+                }
+            }
+            .navigationDestination(for: StudentInfo.self) { student in
+                Text("Student name is \(student.name)")
+            }
+        }
+    }
+}
+```
+
+### Day44：项目九第二部分
+
+### 自定义页面跳转逻辑：
+
+```
+
+```
+

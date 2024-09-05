@@ -5585,9 +5585,134 @@ struct ContentView: View {
 
 ### Day44：项目九第二部分
 
-### 自定义页面跳转逻辑：
+#### 自定义页面跳转逻辑：
 
+![录屏2024-09-05 21.11.41](./SwiftUI in 100 Days.assets/录屏2024-09-05 21.11.41.gif)
+
+```swift
+struct ContentView: View {
+    @State private var path = NavigationPath()
+    
+    var body: some View {
+        NavigationStack(path: $path) {
+            VStack {
+                Button("Tap to jump 32") {
+                    path = [32]
+                }
+                
+                Button("Tap to jump 64") {
+                    path.append(64)
+                }
+                
+                Button("Tap to jump 32 then to 64") {
+                    path = [32, 64]
+                }
+            }
+            .navigationDestination(for: Int.self) { path in
+                Text("\(path)")
+            }
+        }
+    }
+}
 ```
 
+#### 利用专门的NavigationPath类型用来存储既有Int又有String的导航路径：
+
+![录屏2024-09-05 21.36.35](./SwiftUI in 100 Days.assets/录屏2024-09-05 21.36.35.gif)
+
+```swift
+struct ContentView: View {
+    @State private var path = NavigationPath()
+    
+    var body: some View {
+        NavigationStack(path: $path) {
+            VStack {
+                ForEach(0..<5) { number in
+                    NavigationLink("Number \(number)", value: number)
+                }
+                ForEach(0..<5) { number in
+                    NavigationLink("String \(number)", value: String(number))
+                }
+            }
+            .toolbar {
+                Button("Push 64") {
+                    path.append(64)
+                }
+                Button("Push Hello") {
+                    path.append("Hello")
+                }
+            }
+            .navigationDestination(for: Int.self) { number in
+                Text("\(number)")
+            }
+            .navigationDestination(for: String.self) { string in
+                Text("Page \(string)")
+            }
+        }
+    }
+}
 ```
 
+#### 能无限随机生成子视图的视图：
+
+![录屏2024-09-05 22.10.18](./SwiftUI in 100 Days.assets/录屏2024-09-05 22.10.18.gif)
+
+```swift
+struct RandomView: View {
+    var number: Int
+    
+    var body: some View {
+        NavigationLink("Random page", value: Int.random(in: 0...1000))
+            .navigationTitle("Random\(number)")
+    }
+}
+
+struct ContentView: View {
+    @State private var path = [Int]()
+    
+    var body: some View {
+        NavigationStack(path: $path) {
+            RandomView(number: 0)
+                .navigationDestination(for: Int.self) { selection in
+                    RandomView(number: selection)
+                }
+        }
+    }
+}
+```
+
+#### 一键返回主界面：
+
+![录屏2024-09-05 22.12.00](./SwiftUI in 100 Days.assets/录屏2024-09-05 22.12.00.gif)
+
+```swift
+struct RandomView: View {
+    var number: Int
+    @Binding var path: [Int]//在 SwiftUI Binding用来将子视图中的某个属性与父视图中的状态进行绑定，使子视图能够读取并修改父视图的状态。
+    
+    var body: some View {
+        NavigationLink("Random page", value: Int.random(in: 0...1000))
+            .navigationTitle("Random\(number)")
+            .toolbar {
+                Button("Back to root page") {
+                    path.removeAll()//普通类型path就用removeAll，如果是NavigationPath类型就给赋值新的空NavigationPath()
+                }
+            }
+    }
+}
+
+struct ContentView: View {
+    @State private var path = [Int]()
+    
+    var body: some View {
+        NavigationStack(path: $path) {
+            RandomView(number: 0, path: $path)
+                .navigationDestination(for: Int.self) { selection in
+                    RandomView(number: selection, path: $path)
+                }
+        }
+    }
+}
+```
+
+#### 保存页面路径：

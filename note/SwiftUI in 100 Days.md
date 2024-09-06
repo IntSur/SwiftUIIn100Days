@@ -5715,4 +5715,121 @@ struct ContentView: View {
 }
 ```
 
-#### 保存页面路径：
+#### 保存加载页面路径：
+
+有两种情况：1.路径数组为NavigationPath() 2.路径数组为[Int] ()这类单类型数组
+
+使用class来存储path、实现存储path
+
+```swift
+//1.路径数组为NavigationPath()
+@Observable
+class PathStore {
+    var path: NavigationPath {
+        didSet {
+            save()
+        }
+    }
+    
+    private let savePath = URL.documentsDirectory.appending(path: "SavedPath")//创建app路径下用于存储用户数据的文件
+    
+    init() {//初始化时加载path数据
+        if let data = try? Data(contentsOf: savePath) {
+            if let decoded = try? JSONDecoder().decode(NavigationPath.CodableRepresentation.self, from: data) {
+                path = NavigationPath(decoded)
+                return
+            }
+        }
+        
+        path = NavigationPath()
+    }
+    
+    func save() {
+        guard let representation = path.codable else { return }//对一个NavigationPath类型的path解包，并在解包失败时提前返回。
+        
+        do {
+            let data = try JSONEncoder().encode(representation)
+            try data.write(to: savePath)
+        } catch {
+            print("Failed to save navigation path.")
+        }
+    }
+}
+
+struct RandomView: View {
+    var number: Int
+    
+    var body: some View {
+        NavigationLink("Random page", value: Int.random(in: 0...1000))
+            .navigationTitle("Random\(number)")
+    }
+}
+
+struct ContentView: View {
+    @State private var pathStore = PathStore()
+    
+    var body: some View {
+        NavigationStack(path: $pathStore.path) {
+            RandomView(number: 0)
+                .navigationDestination(for: Int.self) { selection in
+                    RandomView(number: selection)
+                }
+        }
+    }
+}
+
+// 2.路径数组为[Int] ()这类单类型数组
+@Observable
+class PathStore {
+    var path: [Int] {
+        didSet {
+            save()
+        }
+    }
+    
+    private let savePath = URL.documentsDirectory.appending(path: "SavedPath")//创建app路径下用于存储用户数据的文件
+    
+    init() {//初始化时加载path数据
+        if let data = try? Data(contentsOf: savePath) {
+            if let decoded = try? JSONDecoder().decode([Int].self, from: data) {
+                path = decoded
+                return
+            }
+        }
+        
+        path = []
+    }
+    
+    func save() {
+        do {
+            let data = try JSONEncoder().encode(path)
+            try data.write(to: savePath)
+        } catch {
+            print("Failed to save navigation path.")
+        }
+    }
+}
+
+struct RandomView: View {
+    var number: Int
+    
+    var body: some View {
+        NavigationLink("Random page", value: Int.random(in: 0...1000))
+            .navigationTitle("Random\(number)")
+    }
+}
+
+struct ContentView: View {
+    @State private var pathStore = PathStore()
+    
+    var body: some View {
+        NavigationStack(path: $pathStore.path) {
+            RandomView(number: 0)
+                .navigationDestination(for: Int.self) { selection in
+                    RandomView(number: selection)
+                }
+        }
+    }
+}
+```
+

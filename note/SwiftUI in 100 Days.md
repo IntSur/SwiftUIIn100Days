@@ -5833,3 +5833,383 @@ struct ContentView: View {
 }
 ```
 
+### Day45：项目九第三部分
+
+#### 自定义navigationbar效果：
+
+![截屏2024-09-07 13.49.49](./SwiftUI in 100 Days.assets/截屏2024-09-07 13.49.49.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(0..<100) { i in
+                    Text("List \(i)")
+                }
+            }
+            .navigationTitle("Lists")
+            .navigationBarTitleDisplayMode(.inline)//NavigationTitle 居中显示效果
+            .toolbarBackground(.blue)//NavigationBar背景颜色
+            .toolbarColorScheme(.dark)//NavigationBar强制使用黑夜模式
+        }
+    }
+}
+```
+
+![截屏2024-09-07 13.52.25](./SwiftUI in 100 Days.assets/截屏2024-09-07 13.52.25.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(0..<100) { i in
+                    Text("List \(i)")
+                }
+            }
+            .navigationTitle("Lists")
+            .navigationBarTitleDisplayMode(.inline)//NavigationTitle 居中显示效果
+            .toolbarBackground(.blue)//NavigationBar背景颜色
+            .toolbarColorScheme(.dark)//NavigationBar强制使用黑夜模式
+            .toolbar(.hidden, for: .navigationBar)//隐藏NavigationBar
+        }
+    }
+}
+```
+
+#### 自定义Toolbar位置：
+
+##### 使用ToolbarItem接口：
+
+![截屏2024-09-07 14.14.53](./SwiftUI in 100 Days.assets/截屏2024-09-07 14.14.53.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        NavigationStack {
+            Text("Hello World!")
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {//把Toolbar位置前置
+                        Button("Tap me") {
+                            
+                        }
+                    }
+                }
+        }
+    }
+}
+```
+
+##### ToolbarItem接口placement参数：
+
+当首参数为confirmationAction时，用.navigationBarBackButtonHidden()来取消返回键。
+
+![截屏2024-09-07 14.18.40](./SwiftUI in 100 Days.assets/截屏2024-09-07 14.18.40.png)
+
+##### ToolbarItemGroup包装多个视图：
+
+![截屏2024-09-07 14.28.22](./SwiftUI in 100 Days.assets/截屏2024-09-07 14.28.22.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        NavigationStack {
+            Text("Hello World!")
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarLeading) {
+                        Button("Tap me") {
+                            
+                        }
+                
+                        Button("Click me") {
+                            
+                        }
+                    }
+                }
+        }
+    }
+}
+```
+
+#### 将导航栏名字做成可以绑定的：
+
+![录屏2024-09-07 14.35.05](./SwiftUI in 100 Days.assets/录屏2024-09-07 14.35.05.gif)
+
+```swift
+struct ContentView: View {
+    @State private var title = "SwiftUI"
+    
+    var body: some View {
+        NavigationStack {
+            Text("Hello World!")
+                .navigationTitle($title)
+                .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+```
+
+### Day46：项目九第四部分
+
+#### 用navigation替代iExpense中的sheet
+
+![录屏2024-09-07 14.55.56](./SwiftUI in 100 Days.assets/录屏2024-09-07 14.55.56.gif)
+
+```swift
+    //ContentView.swift
+    var body: some View {
+        NavigationStack {
+            List {
+                TypeView(sectionTitle: "Personal", expenses: expenses.personalItems, deleteUsingType: deletePersonalItems)
+                
+                TypeView(sectionTitle: "Buisness", expenses: expenses.buisnessItems, deleteUsingType: deleteBuisnessItems)
+            }
+            .navigationTitle("iExpense")
+            .toolbar {
+                NavigationLink("Add") {
+                    AddView(expense: expenses)
+                }
+            }
+        }
+    }
+		//AddView.swift
+    var body: some View {
+        List {
+            TextField("Name", text: $name)
+            
+            Picker("Type", selection: $type) {
+                ForEach(types, id: \.self) {
+                    Text("\($0)")
+                }
+            }
+            
+            TextField("Amount", value: $amount, format: .currency(code: currency))
+                .keyboardType(.decimalPad)
+        }
+        .navigationTitle("Add a new Enpense")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    expense.items.append(ExpenseItem(name: name, type: type, amount: amount))
+                    dismiss()
+                }
+            }
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    expense.items.append(ExpenseItem(name: name, type: type, amount: amount))
+                    dismiss()
+                }
+            }
+        }
+        .navigationBarBackButtonHidden()
+    }
+```
+
+#### 用navigation替代MoonShoot中的navigation label(此点笔记不做记录，具体看视频)
+
+所用技术参考Day43中的.navigationDestination
+
+### Day48：纽约Nextdoor 2018演讲
+
+了解Swift在2018年的发展历程，具体详细看视频。
+
+### Day49：项目十第一部分
+
+使用iTunes API，从iTunes上获取Taylor Swift的专辑信息。
+
+#### 构建用于接收返回值的数据结构：
+
+```swift
+struct Response: Codable {
+    var results: [Result]
+}
+
+struct Result: Codable {
+    var trackId: Int
+    var trackName: String
+    var collectionName: String
+}
+
+struct ContentView: View {
+    @State private var results = [Result]()
+    
+    var body: some View {
+        List {
+            ForEach(results, id: \.trackId) { result in
+                VStack(alignment: .leading) {
+                    Text(result.trackName)
+                    
+                    Text(result.collectionName)
+                }
+            }
+        }
+        .padding()
+    }
+}
+```
+
+#### 加入用于获取iTunes数据的异步任务：
+
+```swift
+struct Response: Codable {
+    var results: [Result]
+}
+
+struct Result: Codable {
+    var trackId: Int
+    var trackName: String
+    var collectionName: String
+}
+
+struct ContentView: View {
+    @State private var results = [Result]()
+    
+    var body: some View {
+        List(results, id: \.trackId) {result in
+            VStack(alignment: .leading) {
+                Text(result.trackName)
+                Text(result.collectionName)
+            }
+        }
+        .task {
+            await loadData()//1.创建异步任务。异步：它允许程序在执行某些操作时，不必等待该操作完成就可以继续执行其他任务。
+        }
+    }
+    
+    func loadData() async {
+        //2.调用iTunes API
+        guard let url = URL(string: "https://itunes.apple.com/search?term=taylor+swift&entity=song") else {
+            print("Invaild URL")
+            return
+        }
+        
+        //3.获取数据
+        do {
+            //用元祖获取需要的数据，这里用异步、可选，来应对网络不通畅、网络问题无法获取数据的意外情况。该行代码会自动抛错。
+            let (data, _) = try await URLSession.shared.data(from: url)
+            
+            do {
+                let decodedResponse = try JSONDecoder().decode(Response.self, from: data)
+                results = decodedResponse.results
+            } catch {
+                print("Decoding error \(error)")//强烈推荐使用do catch 而不是if try，多亏了catch我才能知道错误原因！！！
+            }
+            
+        } catch {
+            print("Invaild Data")
+        }
+    }
+}
+```
+
+#### 异步加载图像：
+
+![截屏2024-09-07 20.07.53](./SwiftUI in 100 Days.assets/截屏2024-09-07 20.07.53.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        AsyncImage(url: URL(string: "https://hws.dev/img/logo.png"), scale: 3)//以3x分辨率加载该远程图像
+    }
+}
+```
+
+#### 自定义异步加载图像的大小：
+
+![录屏2024-09-07 20.12.02](./SwiftUI in 100 Days.assets/录屏2024-09-07 20.12.02.gif)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        AsyncImage(url: URL(string: "https://hws.dev/img/logo.png")) { image in
+            image
+                .resizable()
+                .scaledToFit()
+        } placeholder: {
+            ProgressView()//旋转加载圈
+        }
+        .frame(width: 200, height: 200)//自定义大小
+            
+    }
+}
+```
+
+#### 能报错的异步加载图像：
+
+![截屏2024-09-07 20.21.22](./SwiftUI in 100 Days.assets/截屏2024-09-07 20.21.22.png)
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        AsyncImage(url: URL(string: "https://hws.dev/img/logo")) { phase in
+            if let image = phase.image {
+                image
+                    .resizable()
+                    .scaledToFit()
+            } else if phase.error != nil {
+                Text("Error loading image")
+            } else {
+                ProgressView()
+            }
+        }
+        .frame(width: 200, height: 200)//自定义大小
+    }
+}
+```
+
+#### 不满足条件时禁用按钮
+
+简单写法
+
+![录屏2024-09-07 20.31.01](./SwiftUI in 100 Days.assets/录屏2024-09-07 20.31.01.gif)
+
+```swift
+struct ContentView: View {
+    @State private var username = ""
+    @State private var email = ""
+    
+    var body: some View {
+        List {
+            Section {
+                TextField("Username", text: $username)
+                TextField("Email", text: $email)
+            }
+            
+            Button("Submit") {
+                //actions
+            }
+            .disabled(username.isEmpty || email.isEmpty)//简短写法
+        }
+    }
+}
+```
+
+详细写法
+
+```swift
+struct ContentView: View {
+    @State private var username = ""
+    @State private var email = ""
+    
+    var submitCondition: Bool {//详细写法
+        username.count < 5 || email.count < 10
+    }
+    
+    var body: some View {
+        List {
+            Section {
+                TextField("Username", text: $username)
+                TextField("Email", text: $email)
+            }
+            
+            Button("Submit") {
+                //actions
+            }
+            .disabled(submitCondition)
+        }
+    }
+}
+```
+

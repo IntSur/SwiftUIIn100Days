@@ -6213,3 +6213,210 @@ struct ContentView: View {
 }
 ```
 
+### Day50：项目十第二部分
+
+#### @Observable类的decode、encode：
+
+因为用@Observable包装类时，Swift会对类内属性做处理，导致encode、decode类时，传出的JSON数据不符合JSON规范。
+
+![截屏2024-09-08 10.16.30](./SwiftUI in 100 Days.assets/截屏2024-09-08 10.16.30.png)
+
+所以得用一个继承了CodingKey的特殊的枚举，指明属性内容。
+
+![截屏2024-09-08 10.21.15](./SwiftUI in 100 Days.assets/截屏2024-09-08 10.21.15.png)
+
+```swift
+@Observable
+class UserName: Codable {
+    enum CodingKeys: String, CodingKey {
+        case _name = "name"
+    }
+    
+    var name = "Taylor"
+}
+
+struct ContentView: View {
+    var body: some View {
+        Button("Encode Taylor", action: encode)
+    }
+    
+    func encode() {
+        if let encodeData = try? JSONEncoder().encode(UserName()) {
+            print(String(decoding: encodeData, as: UTF8.self))
+        }
+    }
+}
+```
+
+#### 触觉反馈：
+
+##### Swift内建的触觉反馈：
+
+谨慎选择触觉反馈效果，考虑视障等用户。
+
+```swift
+struct ContentView: View {
+    @State private var toggle = false
+    
+    var body: some View {
+        Button("Toggle sensoryfeedback") {
+            toggle.toggle()
+        }
+        .sensoryFeedback(.success, trigger: toggle)//Swift内建的震动类型
+    }
+}
+```
+
+##### 半自定义的触觉反馈：
+
+```swift
+.sensoryFeedback(.impact()flexibility: .soft, intensity: 1.0), trigger: toggle)//.impact()
+```
+
+##### 完全自定义的触觉反馈：
+
+```swift
+import CoreHaptics
+import SwiftUI
+
+struct ContentView: View {
+    @State private var engine: CHHapticEngine?
+    
+    var body: some View {
+        Button("Toggle sensoryfeedback", action: OEMHaptic)
+            .onAppear(perform: initHapticEngine)//页面加载时就初始化HapticEngine
+    }
+    
+    func checkHapticSupport() {
+        //检查当前硬件设备是否支持Haptics。
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else {
+            print("The device not support hapticEngine.")
+            return
+        }
+    }
+    
+    func initHapticEngine() {
+        checkHapticSupport()
+        do {
+            engine = try CHHapticEngine()
+            try engine?.start()
+        } catch {
+            print("Error loading HapticEngine, error: \(error.localizedDescription)")
+        }
+    }
+    
+    func OEMHaptic() {
+        checkHapticSupport()
+        
+        var events = [CHHapticEvent]()
+        //设置参数
+        let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1)
+        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1)
+        //设置事件
+        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+        
+        events.append(event)
+        
+        do {
+            let pattern = try CHHapticPattern(events: events, parameters: [])
+            try engine?.makePlayer(with: pattern).start(atTime: 0)//触发触觉反馈
+        } catch {
+            print("Error: \(error.localizedDescription)")
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+```swift
+        //从弱到强的渐变震动
+        for i in stride(from: 0, to: 1, by: 0.1) {
+            let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(i))
+            let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(i))
+            let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: i)
+            events.append(event)
+        }
+        
+        //从强到弱的渐变震动
+        for i in stride(from: 0, to: 1, by: 0.1) {
+            let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1 - i))
+            let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1 - i))
+            let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 1 + i)
+            events.append(event)
+        }
+```
+
+#### App界面、结构体：
+
+```swift
+//ContentView.swift
+struct ContentView: View {
+    @State private var order = Order()
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("Select your cake type:", selection: $order.type) {
+                        ForEach(Order.types.indices, id: \.self) {
+                            Text(Order.types[$0])
+                        }
+                    }
+                    Stepper("Number of cakes: \(order.quantity)", value: $order.quantity, in: 0...20)
+                }
+                
+                Section {
+                    Toggle("Any special requests?", isOn: $order.specialRequestEnabled)
+                    
+                    if order.specialRequestEnabled {
+                        Toggle("Add extra frosting", isOn: $order.extraFrosting)
+                        Toggle("Add extra sprinkles", isOn: $order.addSprinkles)
+                    }
+                }
+                
+                Section {
+                    NavigationLink("Delivery details") {
+                        AddressView()
+                    }
+                }
+            }
+            .navigationTitle("Cupcake Corner🧁")
+        }
+    }
+}
+
+//AddressView.swift
+struct AddressView: View {
+    var order = Order()
+    
+    var body: some View {
+        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    }
+}
+
+//Order.swift
+import Foundation
+
+@Observable
+class Order {
+    static let types = ["Vanilla", "Strawberry", "Chocolate", "Rainbow"]
+    
+    var type = 0
+    var quantity = 3
+    
+    var specialRequestEnabled = false {
+        didSet {//防止bug：关了特殊需求开关
+            if specialRequestEnabled == false {
+                extraFrosting = false
+                addSprinkles = false
+            }
+        }
+    }
+    var extraFrosting = false
+    var addSprinkles = false
+}
+```
+

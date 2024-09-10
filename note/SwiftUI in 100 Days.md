@@ -6349,7 +6349,7 @@ struct ContentView: View {
         }
 ```
 
-#### App界面、结构体：
+#### 构建App界面、结构体：
 
 ```swift
 //ContentView.swift
@@ -6417,6 +6417,60 @@ class Order {
     }
     var extraFrosting = false
     var addSprinkles = false
+}
+```
+
+### Day51：项目十第三部分
+
+#### 多个页面使用同一份class数据：
+
+使用@Observable和@Bindable双向绑定，能做到数据同步修改。
+
+```swift
+//Order.swift
+@Observable
+class Order {
+...
+}
+
+//AddressView.swift
+import SwiftUI
+
+struct AddressView: View {
+    @Bindable var order = Order()
+    
+    var body: some View {
+        Form {
+            Section {
+                TextField("Name", text: $order.name)
+                TextField("Street Address", text: $order.streetAddress)
+                TextField("City", text: $order.city)
+                TextField("Zip", text: $order.zip)
+            }
+            
+            Section {
+                NavigationLink("CheckOut") {
+                    CheckOutView()
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    AddressView(order: Order())
+}
+```
+
+#### 增加表单筛选条件：
+
+```swift
+var hasInvalidValue: Bool {
+    if name.isEmpty || streetAddress.isEmpty || city.isEmpty || zip.isEmpty {
+        return true
+    }
+
+    return false
 }
 ```
 

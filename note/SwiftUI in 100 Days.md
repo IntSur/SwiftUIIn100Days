@@ -6094,7 +6094,7 @@ struct ContentView: View {
                 let decodedResponse = try JSONDecoder().decode(Response.self, from: data)
                 results = decodedResponse.results
             } catch {
-                print("Decoding error \(error)")//强烈推荐使用do catch 而不是if try，多亏了catch我才能知道错误原因！！！
+                print("Decoding error \(error)")//强烈推荐使用do catch 而不是if try，多亏了catch我才能知道详细的错误原因！！！
             }
             
         } catch {
@@ -6472,5 +6472,162 @@ var hasInvalidValue: Bool {
 
     return false
 }
+```
+
+#### 设计成本计算属性
+
+```swift
+//  Order.swift
+var cost: Decimal {
+        //每个蛋糕成本两刀
+        var cost = Decimal(quantity) * 2
+        
+        //不同品种的蛋糕成本也不一样
+        cost += Decimal(type) / 2
+        
+        if extraFrosting {
+            cost += Decimal(quantity)
+        }
+        
+        if addSprinkles {
+            cost += Decimal(quantity) / 2
+        }
+        
+        return cost
+    }
+```
+
+#### 构建CheckOut页面
+
+```swift
+//  CheckOutView.swift
+import SwiftUI
+
+struct CheckOutView: View {
+    var order: Order
+    
+    var body: some View {
+        ScrollView {
+            VStack {
+                AsyncImage(url: URL(string: "https://hws.dev/img/cupcakes@3x.jpg"), scale: 3) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                } placeholder: {
+                    ProgressView()
+                }
+                .frame(height: 233)
+                
+                Text("Your total cost is \(order.cost, format: .currency(code: "USD"))")
+                    .font(.title)
+                
+                Button("Place order") {
+                    
+                }
+                .padding()
+            }
+        }
+      	.navigationTitle("Checkout")
+        .navigationBarTitleDisplayMode(.inline)
+      	.scrollBounceBehavior(.basedOnSize)//Swift自动检测当前页面尺寸是否需要滑动
+    }
+}
+
+#Preview {
+    CheckOutView(order: Order())
+}
+```
+
+#### 实现网络收发数据
+
+```swift
+struct CheckOutView: View {
+    var order: Order
+    @State private var CheckoutMessage = ""
+    @State private var isCheckoutMessageShown = false
+    
+    var body: some View {
+        ScrollView {
+            VStack {
+								...
+                Button("Place order") {
+                    Task {//因为button只接受同步函数，所以这里要写成新建一个Task
+                        await placeOrder()
+                    }
+                }
+                .padding()
+            }
+        }
+        ...
+        .alert("", isPresented: $isCheckoutMessageShown) {
+            Button("OK") {}
+        } message: {
+            Text(CheckoutMessage)
+        }
+    }
+    
+    func placeOrder() async {
+        //1.将本地数据打包成json
+        guard let encodeData = try? JSONEncoder().encode(order) else {
+            print("Encode local data failed.")
+            return
+        }
+        //2.创建http POST请求
+        var urlReq = URLRequest(url: URL(string: "https://reqres.in/api/cupcakes")!)//https://reqres.in/api/cupcakes是一个专用于测试http请求的网址
+        urlReq.httpMethod = "POST"
+        urlReq.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        //3.发送该POST请求 并接受处理该请求返回数据
+        do {
+            let (data, _) = try await URLSession.shared.upload(for: urlReq, from: encodeData)
+            let decodeData = try JSONDecoder().decode(Order.self, from: data)
+            CheckoutMessage = "Thank you! Your order is on its way!"
+            isCheckoutMessageShown = true
+            print(decodeData.quantity)
+            print(Order.types[decodeData.type])
+            if decodeData.specialRequestEnabled {
+                print(decodeData.addSprinkles)
+                print(decodeData.extraFrosting)
+            }
+        } catch {
+            print("Checkout POST http failed: \(error.localizedDescription)")
+            return
+        }
+    }
+}
+```
+
+#### 使用断点+lldb查看数据信息
+
+##### 新增断点
+
+直接点击
+
+![录屏2024-09-17 11.22.23](./SwiftUI in 100 Days.assets/录屏2024-09-17 11.22.23.gif)
+
+#### 取消断点
+
+按住拖移到一边
+
+![录屏2024-09-17 11.22.23](./SwiftUI in 100 Days.assets/录屏2024-09-17 11.22.23-6544961.gif)
+
+#### 使用lldb打印Order数据
+
+![截屏2024-09-17 11.54.33](./SwiftUI in 100 Days.assets/截屏2024-09-17 11.54.33.png)
+
+改进Order数据内的数据名称
+
+```swift
+//  Order.swift
+enum CodingKeys: String, CodingKey {
+        case _type = "type"
+        case _quantity = "quantity"
+        case _specialRequestEnabled = "specialRequestEnabled"
+        case _extraFrosting = "extraFrosting"
+        case _addSprinkles = "addSprinkles"
+        case _name = "name"
+        case _streetAddress = "streetAddress"
+        case _city = "city"
+        case _zip = "zip"
+    }
 ```
 

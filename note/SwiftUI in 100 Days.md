@@ -6631,3 +6631,146 @@ enum CodingKeys: String, CodingKey {
     }
 ```
 
+### Day52：项目十第四部分
+
+#### 完善空输入检查：
+
+```swift
+extension String {
+    var isReallyEmpty: Bool {
+        self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+}
+```
+
+#### 完善报错弹窗：
+
+#### 将用户订单地址信息持久化保存：
+
+```swift
+//  Order.swift
+@Observable
+class Order: Codable {
+ 	 enum CodingKeys: String, CodingKey {
+        case _type = "type"
+        case _quantity = "quantity"
+        case _specialRequestEnabled = "specialRequestEnabled"
+        case _extraFrosting = "extraFrosting"
+        case _addSprinkles = "addSprinkles"
+        case _name = "name"
+        case _streetAddress = "streetAddress"
+        case _city = "city"
+        case _zip = "zip"
+    }
+    ...
+    var name: String {
+        didSet {//这里用属性观察器而不用get/set的原因是，get/set会影响@Observable做CodingKeys
+            UserDefaults.standard.set(name, forKey: "name")
+        }
+    }
+    
+    var streetAddress: String {
+        didSet {
+            UserDefaults.standard.set(streetAddress, forKey: "streetAddress")
+        }
+    }
+    
+    var city: String {
+        didSet {
+            UserDefaults.standard.set(city, forKey: "city")
+        }
+    }
+    
+    var zip: String {
+        didSet {
+            UserDefaults.standard.set(zip, forKey: "zip")
+        }
+    }
+    ...
+    init() {
+        name = UserDefaults.standard.string(forKey: "name") ?? ""
+        streetAddress = UserDefaults.standard.string(forKey: "streetAddress") ?? ""
+        city = UserDefaults.standard.string(forKey: "city") ?? ""
+        zip = UserDefaults.standard.string(forKey: "zip") ?? ""
+    }
+}
+
+```
+
+### Day53：项目十一第一部分
+
+#### 用@Binding绑定同页面其他视图内的变量
+
+Tip：同页面其他视图的变量用@Binding，其他页面的变量用@Bindable
+
+![录屏2024-09-18 22.02.23](./SwiftUI in 100 Days.assets/录屏2024-09-18 22.02.23.gif)
+
+```swift
+struct ButtonView: View {
+    let title: String
+    @Binding var isPressing: Bool
+    
+    var onColor = [Color.green, Color.blue]
+    var offColor = [Color(white: 0.6), Color(white: 0.4)]
+    
+    var body: some View {
+        Button(title) {
+            isPressing.toggle()
+        }
+        .padding()
+        .background(LinearGradient(colors: isPressing ? onColor : offColor, startPoint: .leading, endPoint: .trailing))
+        .foregroundStyle(.white)
+        .clipShape(.capsule)
+        .shadow(radius: isPressing ? 0 : 5)
+    }
+}
+
+struct ContentView: View {
+    @State private var isPressing = false
+    
+    var body: some View {
+        ButtonView(title: "Remember me", isPressing: $isPressing)
+        Text(isPressing ? "On" : "Off")
+    }
+}
+```
+
+#### 使用AppStorage保存长文本：
+
+![截屏2024-09-18 22.21.11](./SwiftUI in 100 Days.assets/截屏2024-09-18 22.21.11.png)
+
+```swift
+//长文本方式1：TextField
+struct ContentView: View {
+    @State private var isPressing = false
+    @AppStorage("text") private var texts = ""
+    
+    var body: some View {
+        NavigationStack {
+            VStack {
+                TextField("", text: $texts, axis: .vertical)//垂直方向增大文本输入框的TextField
+                    .textFieldStyle(.roundedBorder)
+                    .padding()
+                ButtonView(title: "Remember me", isPressing: $isPressing)
+                Text(isPressing ? "On" : "Off")
+            }
+        }
+    }
+}
+
+//长文本方式2:Text
+struct ContentView: View {
+    @AppStorage("text") private var texts = ""
+    
+    var body: some View {
+        NavigationStack {
+            VStack {
+                TextEditor(text: $texts)
+                    .padding()
+            }
+            .navigationTitle("Note📓")
+        }
+    }
+}
+```
+

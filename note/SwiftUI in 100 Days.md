@@ -6699,7 +6699,7 @@ class Order: Codable {
 
 ### Day53：项目十一第一部分
 
-#### 用@Binding绑定同页面其他视图内的变量
+#### 用@Binding绑定同页面其他视图内的变量：
 
 Tip：同页面其他视图的变量用@Binding，其他页面的变量用@Bindable
 
@@ -6758,7 +6758,7 @@ struct ContentView: View {
     }
 }
 
-//长文本方式2:Text
+//长文本方式2:TextEditor
 struct ContentView: View {
     @AppStorage("text") private var texts = ""
     
@@ -6774,3 +6774,349 @@ struct ContentView: View {
 }
 ```
 
+#### 初始化SwiftUI Data：
+
+##### 1.创建数据结构体
+
+```Swift
+//	Student.swift
+import Foundation
+import SwiftData
+
+@Model//创建Student类型的SwiftData模型
+class Student {
+    var id: UUID
+    var name: String
+    
+    init(id: UUID, name: String) {
+        self.id = id
+        self.name = name
+    }
+}
+```
+
+##### 2.初始化数据模型容器
+
+```Swift
+//  BookwormApp.swift
+import SwiftData
+import SwiftUI
+
+@main
+struct BookwormApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        .modelContainer(for: Student.self)//初始化和配置数据模型容器。
+    }
+}
+```
+
+##### 3.使能读写数据模型
+
+```Swift
+//  ContentView.swift
+import SwiftData
+import SwiftUI
+
+struct ContentView: View {
+    @Environment(\.modelContext) var modelContext//使能可以实时修改的Student swiftdata区域
+    @Query var students: [Student]//使能可以查询的Student swiftdata区域
+    
+    var body: some View {
+        NavigationStack {
+            List(students) { student in
+                Text(student.name)
+            }
+            .navigationTitle("Students list📓")
+            .toolbar {
+                Button("Add") {
+                    let student = Student(id: UUID(), name: "fan")
+                    modelContext.insert(student)
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+### Day54：项目十一第二部分
+
+#### 构建app初始界面
+
+##### 创建书本信息数据结构：
+
+```Swift
+//  Book.swift
+
+import Foundation
+import SwiftData
+
+@Model
+class Book {
+    var title: String
+    var author: String
+    var genre: String
+    var review: String
+    var rating: Int
+    
+    init(title: String, author: String, genre: String, review: String, rating: Int) {
+        self.title = title
+        self.author = author
+        self.genre = genre
+        self.review = review
+        self.rating = rating
+    }
+}
+```
+
+##### 创建新增书本界面：
+
+```swift
+//  AddBook.swift
+
+import SwiftData
+import SwiftUI
+
+struct AddBook: View {
+    @Environment(\.modelContext) var modelContext
+    @Environment(\.dismiss) var dismiss
+    @Query var books: [Book]
+    
+    @State private var title = ""
+    @State private var author = ""
+    @State private var rating = 3
+    @State private var genre = "Fantasy"
+    @State private var review = ""
+    
+    let genres = ["Fantasy", "Horror", "Kids", "Mystery", "Poetry", "Romance", "Thriller"]
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Name of book", text: $title)
+                    TextField("Author of book", text: $author)
+                    
+                    Picker("Genre", selection: $genre) {
+                        ForEach(genres, id: \.self) {
+                            Text($0)
+                        }
+                    }
+                }
+                
+                Section("Write a review") {
+                    TextEditor(text: $review)
+                    
+                    Picker("Rating", selection: $rating) {
+                        ForEach(0..<6) {
+                            Text(String($0))
+                        }
+                    }
+                }
+                
+                Section {
+                    Button ("Save") {
+                        let newbook = Book(title: title, author: author, genre: genre, review: review, rating: rating)
+                        modelContext.insert(newbook)
+                        dismiss()
+                    }
+                }
+            }
+            .navigationTitle("Add book")
+        }
+    }
+}
+
+#Preview {
+    AddBook()
+}
+```
+
+##### 构建App主界面：
+
+```swift
+//  ContentView.swift
+
+import SwiftData
+import SwiftUI
+
+struct ContentView: View {
+    @Environment(\.modelContext) var modelContext
+    @Query var books: [Book]
+    
+    @State private var showingAddScreen = false
+
+    var body: some View {
+        NavigationStack {
+            Text("Count \(books.count)")
+                .navigationTitle("BookWorm")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Add Book", systemImage: "plus") {
+                            showingAddScreen.toggle()
+                        }
+                    }
+                }
+                .sheet(isPresented: $showingAddScreen) {
+                    AddBook()
+                }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+```
+
+##### 初始化数据模型容器：
+
+```swift
+//  BookwormApp.swift
+
+import SwiftData
+import SwiftUI
+
+@main
+struct BookwormApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        .modelContainer(for: Book.self)
+    }
+}
+```
+
+#### 自定义五星打分视图
+
+![](./SwiftUI in 100 Days.assets/截屏2024-10-05 22.52.34.png)
+
+##### 构建打星评分视图：
+
+```swift
+//  RatingView.swift
+
+import SwiftUI
+
+struct RatingView: View {
+    @Binding var rating: Int
+    var label = ""
+    var maximumRating = 5
+    
+    var offImage: Image?
+    var onImage = Image(systemName: "star.fill")
+
+    var offColor = Color.gray
+    var onColor = Color.yellow
+    
+    var body: some View {
+        HStack {
+            if label.isEmpty == false {
+                Text(label)
+            }
+            
+            ForEach(1..<maximumRating + 1, id: \.self) { number in
+                Button {
+                    rating = number
+                } label: {
+                    image(for: number)
+                        .foregroundStyle(rating < number ? offColor : onColor)
+                }
+            }
+        }
+        .buttonStyle(.plain)//解决SwiftUI会自动识别Form的每行只有一个交互按钮的问题
+    }
+    
+    func image(for number: Int) -> Image {
+        if number > rating {
+            return offImage ?? onImage
+        } else {
+            return onImage
+        }
+    }
+}
+
+#Preview {
+    RatingView(rating: .constant(4))
+}
+```
+
+```swift
+//  AddBook.swift
+Section("Write a review") {
+    TextEditor(text: $review)
+    RatingView(rating: $rating)
+}
+```
+
+##### 构建Emoji视图：
+
+```swift
+//  EmojiRatingView.swift
+
+import SwiftUI
+
+struct EmojiRatingView: View {
+    let rating: Int
+    
+    var body: some View {
+        switch rating {
+        case 1:
+            Text("☹️")
+        case 2:
+            Text("🙁")
+        case 3:
+            Text("😑")
+        case 4:
+            Text("🙂")
+        case 5:
+            Text("😃")
+        default:
+            Text("🫠")
+        }
+    }
+}
+
+#Preview {
+    EmojiRatingView(rating: 4)
+}
+
+//  ContentView.swift
+NavigationStack {
+            List {
+                ForEach(books) { book in
+                    NavigationLink(value: book){
+                        HStack {
+                            EmojiRatingView(rating: book.rating)
+                                .font(.largeTitle)
+                            VStack(alignment: .leading) {
+                                Text(book.title)
+                                    .font(.headline)
+                                
+                                Text(book.author)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("BookWorm")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Add Book", systemImage: "plus") {
+                        showingAddScreen.toggle()
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddScreen) {
+                AddBook()
+            }
+        }
+```

@@ -6940,6 +6940,8 @@ struct AddBook: View {
 
 ##### 构建App主界面：
 
+往SwiftData中写数据的第一种方法：modelContext.insert
+
 ```swift
 //  ContentView.swift
 
@@ -7272,7 +7274,7 @@ struct DetailView: View {
 ...
 ```
 
-#### Day56：项目十一第三部分
+### Day56：项目十一第三部分
 
 #### 设置书本信息保存条件
 
@@ -7287,5 +7289,114 @@ Section {
     }
 }
 .disabled(author.isEmpty || title.isEmpty)
+```
+
+### Day57：项目十二第一部分
+
+#### 初始化SwiftData User数据结构：
+
+```swift
+//  SwiftDataProjectApp.swift
+import SwiftData
+import SwiftUI
+
+@main
+struct SwiftDataProjectApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+        .modelContainer(for: User.self)
+    }
+}
+
+
+//  ContentView.swift
+import SwiftData
+import SwiftUI
+
+struct ContentView: View {
+    @Environment(\.modelContext) var modelContext
+    @Query(sort: [SortDescriptor(\User.name)]) var users: [User]
+    @State private var path = [User]()//用于存储导航栏路径
+    
+    var body: some View {
+        NavigationStack(path: $path) {
+            List(users) { user in
+                NavigationLink(value: user) {
+                    Text(user.name)
+                }
+            }
+            .navigationTitle("Users")
+            .navigationDestination(for: User.self) { user in
+                EditUserView(user: user)
+            }
+            .toolbar {
+                Button("Add User", systemImage: "plus") {
+                    let user = User(name: "", city: "", joinDate: .now)
+                    modelContext.insert(user)
+                    path = [user]
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
+
+
+//  User.swift
+import Foundation
+import SwiftData
+
+@Model
+class User {
+    var name: String
+    var city: String
+    var joinDate: Date
+    
+    init(name: String, city: String, joinDate: Date) {
+        self.name = name
+        self.city = city
+        self.joinDate = joinDate
+    }
+}
+```
+
+#### 往SwiftData中写数据的第二种方法：用@Bindable绑定User数据
+
+```swift
+//  EditUserView.swift
+import SwiftData
+import SwiftUI
+
+struct EditUserView: View {
+    @Bindable var user: User//直接绑定数据，不用声明modelContext，再insert。
+    
+    var body: some View {
+        Form {
+            TextField("Name", text: $user.name)
+            TextField("City", text: $user.city)
+            DatePicker("JoinDate", selection: $user.joinDate)
+        }
+        .navigationTitle("Users")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+#Preview {
+    do {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: User.self, configurations: config)
+        let previewUser = User(name: "Taylor Swift", city: "Nashville", joinDate: .now)
+        
+        return EditUserView(user: previewUser)
+            .modelContainer(container)
+    } catch {
+        return Text("\(error.localizedDescription)")
+    }
+}
 ```
 

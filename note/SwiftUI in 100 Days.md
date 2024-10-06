@@ -7120,3 +7120,172 @@ NavigationStack {
             }
         }
 ```
+
+### Day55：项目十一第三部分
+
+#### 新增书本详细信息界面：
+
+![截屏2024-10-06 17.54.14](./SwiftUI in 100 Days.assets/截屏2024-10-06 17.54.14.png)
+
+```swift
+//  ContentView.swift
+...
+.navigationTitle("BookWorm")
+.navigationDestination(for: Book.self) { book in
+    DetailView(book: book)
+}
+.toolbar {
+    ToolbarItem(placement: .topBarTrailing) {
+        Button("Add Book", systemImage: "plus") {
+            showingAddScreen.toggle()
+        }
+    }
+}
+...
+
+
+//  DetailView.swift
+import SwiftData
+import SwiftUI
+
+struct DetailView: View {
+    let book: Book
+    
+    var body: some View {
+        ScrollView {
+            ZStack(alignment: .bottomTrailing) {
+                Image(book.genre)
+                    .resizable()
+                    .scaledToFit()
+                
+                Text(book.genre.uppercased())
+                    .fontWeight(.black)
+                    .padding(8)
+                    .foregroundStyle(.white)
+                    .background(.black.opacity(0.75))
+                    .clipShape(.capsule)
+                    .offset(x: -5, y: -5)
+            }
+            
+            Text(book.author)
+                .font(.title)
+                .foregroundStyle(.secondary)
+            
+            Text(book.review)
+            
+            Spacer()
+            
+            RatingView(rating: .constant(book.rating))
+        }
+        .navigationTitle(book.title)
+    		.navigationBarTitleDisplayMode(.inline)
+    		.scrollBounceBehavior(.basedOnSize)
+    }
+}
+
+#Preview {
+    do {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)//允许用于预览的SwiftData数据被暂时存在内存中
+        let container = try ModelContainer(for: Book.self, configurations: config)
+        let example = Book(title: "Steve Jobs", author: "fan", genre: "Fantasy", review: "...", rating: 4)
+        return DetailView(book: example)
+            .modelContainer(container)
+    } catch {
+        return Text("Failed to create preview: \(error.localizedDescription)")
+    }
+}
+```
+
+#### 排序SwiftData数据：
+
+```swift
+//根据数据结构内的一种属性进行排序：
+//	写法一
+//  ContentView.swift
+@Query(sort: \Book.rating, order: .reverse) var books: [Book]
+
+//根据数据结构内的一种属性进行排序：
+//	写法二
+//  ContentView.swift
+@Query(sort: [SortDescriptor(\Book.rating, order: .reverse)]) var books: [Book]
+
+//根据数据结构内的多种属性进行排序：
+//  ContentView.swift
+@Query(sort: [
+        SortDescriptor(\Book.rating, order: .reverse),
+        SortDescriptor(\Book.author, order: .reverse)
+    ]) var books: [Book]
+```
+
+#### 添加编辑按钮：
+
+![截屏2024-10-06 17.59.37](./SwiftUI in 100 Days.assets/截屏2024-10-06 17.59.37.png)
+
+```swift
+//  ContentView.swift
+.toolbar {
+    ToolbarItem(placement: .topBarLeading) {
+        EditButton()
+    }
+    ...
+}
+```
+
+#### 在详情页面添加删除按钮和告警：
+
+![截屏2024-10-06 18.00.16](./SwiftUI in 100 Days.assets/截屏2024-10-06 18.00.16.png)
+
+```swift
+//  DetailView.swift
+
+...
+
+struct DetailView: View {
+    @Environment(\.modelContext) var modelContext
+    @Environment(\.dismiss) var dismiss
+    @State private var showDeleteAlert = false
+    let book: Book
+    
+    var body: some View {
+        ScrollView {
+            ...
+        }
+        ...
+        .alert("Delete Book", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive, action: deleteBook)
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure?")
+        }
+        .toolbar {
+            Button("Delete this book", systemImage: "trash") {
+                showDeleteAlert = true
+            }
+        }
+    }
+    
+    func deleteBook() {
+        modelContext.delete(book)
+        dismiss()
+    }
+}
+...
+```
+
+#### Day56：项目十一第三部分
+
+#### 设置书本信息保存条件
+
+```swift
+//  AddBook.swift
+
+Section {
+    Button ("Save") {
+        let newbook = Book(title: title, author: author, genre: genre, review: review, rating: rating)
+        modelContext.insert(newbook)
+        dismiss()
+    }
+}
+.disabled(author.isEmpty || title.isEmpty)
+```
+

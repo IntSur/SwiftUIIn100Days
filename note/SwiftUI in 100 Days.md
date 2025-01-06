@@ -771,7 +771,7 @@ luckyNumbers.filter(isOdd).sorted().map(translateToMapString).forEach(printItems
 
 - 结构体会自动初始化各成员。
 - 在创建结构体实体时，Employee(name: "intSur", vacationRemaining: 3) = Employee.init(name: "intSur", vacationRemaining: 3),这个init类似于c++的类的构造函数，一般来说不用加init就可以，这是一个语法糖。
-- struct一般分为两种属性：
+- struct的属性分为两种：
   1. 存储属性
   2. 计算属性
 - 结构体的init：自定义初始化属性，类似于c++的类的构造函数

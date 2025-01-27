@@ -69,7 +69,7 @@ print(unwrappedInput)
 let emptyBook: Book? = nil
 let bookName = emptyBook?.bookName?.first?.uppercased() ?? "Unkown" //这个可选链的意思：emptyBook这个Book类型的实体有没有真实值？如果有的话，它的bookName属性有没有真实值？如果有的话，bookName存在第一个字符吗？如果有的话，那就大写，赋值给bookName。只要这条链路上有一个非真实值，那么就执行空合并。
 
-//5️⃣当不在乎报错类型的时候，可以使用try？，这样那么返回nil，要么返回成功的值。
+//5️⃣当不在乎报错类型的时候，可以使用try？，这样要么返回??后面的值，要么返回成功的值。
 enum UserErrorCode: Error {
     case Network_Failed
     case UserID_Outloop
@@ -98,7 +98,7 @@ print(result)// 忽略了具体是什么报错，只关心返回是否成功。
 func randomPickArray(of array: [Int]?) {
     array?.randomElement() ?? Int.random(in: 1...100 )
 }
-//CheckPoint9拓展：如果传入的array连数组元素类型也不确认，该如何处理？Ans：双重空合并
+//CheckPoint9拓展：如果传入的array连数组元素类型也不确认，该如何处理？Answer：双重空合并
 func randomPickArray(of array: [Int?]?) {
 //    let randomIn100 = Int.random(in: 1...100) 这样写会有问题：如果数组元素确实是nil，那这个randomIn100常量就白创建了，会浪费资源。这时候可以用lazy关键字，让randomIn100只有在被调用的时候，再进行生成随机数。
     lazy var randomIn100 = Int.random(in: 1...100)

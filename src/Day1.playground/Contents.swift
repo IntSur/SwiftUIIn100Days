@@ -12,12 +12,12 @@ let quote = "He tapped a sign \"Hello!\" and go ahead."
 
 let wordsToYou = """
 Welcome to study
-SwiftUi language!
+Swift language!
 It is nice to meet
 you here!🧑🏻‍💻
 """
 
-//1.打印字符串有几个字符，这里一个emoji就是一个byte
+//1.打印字符串有几个字符，这里一个emoji = 1 byte
 print(greeting.count)
 
 //2.小写字符转换为大写

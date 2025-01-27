@@ -1,7 +1,7 @@
 import Cocoa
 
 //for循环
-let platforms = ["macOS", "iOS", "tvOS", "watchOS", "VisionOS"]
+let platforms = ["macOS", "iOS", "tvOS", "watchOS", "visionOS"]
 for os in platforms {
     print("Swift can run in \(os)")
 }

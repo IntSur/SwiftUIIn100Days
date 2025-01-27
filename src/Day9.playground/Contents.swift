@@ -41,6 +41,7 @@ let someHero = ["Spiderman", "IronMan", "Batman", "Wolfman", "CatWoman"]
 print(someHero.sorted())
 //普通函数放到sorted(by:)
 func pickUpCaptionHero(name1: String, name2: String) -> Bool {
+    //将IronMan始终放在前面，并按字符串的字典序从小到大地排列
     if name1 == "IronMan" {
         return true
     } else if name2 == "IronMan" {
@@ -49,7 +50,18 @@ func pickUpCaptionHero(name1: String, name2: String) -> Bool {
     return name1 < name2
 }
 print(someHero.sorted(by: pickUpCaptionHero))
-//闭包放到sorted(by:)
+//闭包放到sorted(by:)的完整写法
+print(someHero.sorted(by: { (name1: String, name2: String) -> Bool in
+    if name1 == "IronMan" {
+        return true
+    } else if name2 == "IronMan" {
+        return false
+    }
+    return name1 < name2
+}))
+
+//2️⃣简写闭包
+//闭包简写步骤1
 print(someHero.sorted(by: {(a: String, b: String) -> Bool in
     if a == "IronMan" {
         return true
@@ -58,9 +70,17 @@ print(someHero.sorted(by: {(a: String, b: String) -> Bool in
     }
     return a < b
 }))
-
-//2️⃣简写闭包
-print(someHero.sorted {
+//闭包简写步骤2
+print(someHero.sorted{(a: String, b: String) -> Bool in
+    if a == "IronMan" {
+        return true
+    } else if b == "IronMan" {
+        return false
+    }
+    return a < b
+})
+//闭包简写步骤3
+print(someHero.sorted{
     if $0 == "IronMan" {
         return true
     } else if $1 == "IronMan" {
@@ -90,7 +110,7 @@ func makeArray(size: Int, using generator: () -> Int) -> [Int] {
 }
 print(makeArray(size: 5, using: generator))
 
-//2.写法二：相对简单
+//2.写法二：用闭包传入函数参数，会相对简单
 print(makeArray(size: 6) {
     Int.random(in: 1...6)
 })
@@ -153,3 +173,4 @@ func printItems(a: String) {
 }
 
 luckyNumbers.filter(isOdd).sorted().map(translateToMapString).forEach(printItems)
+

@@ -74,7 +74,7 @@ var people = Set([1, 2, 3, 4, 5, 6, 7, 8, 8])
 //set是无序 不重复的
 print(people)
 
-//2.往空数组中新增元素
+//2.往空集合中新增元素
 books.insert("C语言教程")
 books.insert("C++秘籍")
 books.insert("Swift0基础教学")
@@ -107,7 +107,7 @@ enum Weekend{
 
 var day = Weekday.Monday
 day = Weekday.Tuesday
-//简写
+//一旦实例/变量成为该enum类型，就可以简写
 day = .Tuesday
 day = .Wednesday
 print(day)

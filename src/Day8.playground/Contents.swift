@@ -18,7 +18,7 @@ print(demoArray1.count)
 
 //对可能发生错误的代码段抓错：do{...}catch{...}
 //1.创建出一个error类型的枚举
-enum ErrorCodes:Error {
+enum ErrorCodes: Error {
     case short
     case obvious
 }
@@ -59,7 +59,7 @@ do {
 }
 
 //CheckPoint4📋：自己写一个1～10000求平方根的函数
-enum ErrorCodeForSqrt:Error {
+enum ErrorCodeForSqrt: Error {
     case tooLow
     case tooHigh
     case noFound

@@ -115,6 +115,7 @@ for _ in 1...3 {
     users.append(user)
     print("User appended.")
 }
+users.remove(at: 2)
 users.removeAll()
 
 //6️⃣常量类和常量类成员
@@ -128,7 +129,7 @@ intsur.name = "IntSur" // 虽然实体是let的，但实体的成员依旧可以
 print(intsur.name)
 
 //有四种情况：类定实体定，类定实体不定，类不定实体定，类不定实体不定。
-//其实就是指针常量和常量指针的概念。所以class的特性是用指针去控制一块内存里的数据，而struct是直接控制一块内存里的数据。
+//可以类比指针常量和常量指针的概念。因为class是引用类型，而struct是值类型。
  
 //CheckPoint7📋
 class Animal {

@@ -1,5 +1,6 @@
 import Cocoa
 
+//类型注释
 var arrayDemo1: [String] = ["apple", "microsoft"]
 var setDemo1: Set<String> = ([
     "One",
@@ -33,4 +34,5 @@ var eArray3: [String] = []
 var eSet1 = Set<Int>()
 var eSet2: Set<Int> = ([])
 
-var eDictionary:[Int: String] = [:]
+var eDictionary1 = [String: Int]()
+var eDictionary2: [Int: String] = [:]

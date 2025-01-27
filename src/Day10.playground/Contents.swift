@@ -36,7 +36,7 @@ struct Employee {
 var intSur = Employee(name: "intSur", vacationRemaining: 3)
 intSur.takeVacation(days: 1)
 
-//3️⃣结构体的计算属性：get set
+//3️⃣计算属性：get set
 struct Employee2 {
     let name: String
     var vacationAllocate: Int = 14
@@ -58,7 +58,7 @@ print(intSur2.vacationRemaining)
 intSur2.vacationRemaining = 6
 print(intSur2.vacationAllocate)
 
-//4️⃣结构体的观察器：willSet didSet
+//4️⃣观察器：willSet didSet
 struct App {
     var contacts = [String]() {
         willSet {

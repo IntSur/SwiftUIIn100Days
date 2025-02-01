@@ -1612,13 +1612,19 @@ func randomPickArray(of array: [Int?]?) {
 
 - 显示文件格式：偏好设置→通用 
 
-- 项目主函数文件：main主函数，起了个线程，一直会跑。![](./SwiftUI in 100 Days.assets/截屏2024-07-22 22.09.52.png)
-- 资产文件：存放所有用到的图片资源![截屏2024-07-22 22.12.45](./SwiftUI in 100 Days.assets/截屏2024-07-22 22.12.45.png)
+- 项目主函数文件：main主函数，起了个线程，一直会跑。
+
+  <img src="./SwiftUI in 100 Days.assets/截屏2024-07-22 22.09.52.png" style="zoom:50%;" />
+
+- 资产文件：存放所有用到的图片资源
+
+  <img src="./SwiftUI in 100 Days.assets/截屏2024-07-22 22.12.45.png" alt="截屏2024-07-22 22.12.45" style="zoom:50%;" />
+
 - Preview Content:预览数据信息
 
 #### ContentView初始化代码解析：
 
-![截屏2024-07-22 22.45.42](./SwiftUI in 100 Days.assets/截屏2024-07-22 22.45.42.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-22 22.45.42.png" alt="截屏2024-07-22 22.45.42" style="zoom: 33%;" />
 
 ```swift
 import SwiftUI
@@ -1642,7 +1648,7 @@ struct ContentView: View {//从View协议中创建ContentView
 
 #### 表单案例：
 
-![截屏2024-07-22 23.17.32](./SwiftUI in 100 Days.assets/截屏2024-07-22 23.17.32.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-22 23.17.32.png" alt="截屏2024-07-22 23.17.32" style="zoom: 33%;" />
 
 ```swift
 import SwiftUI
@@ -1678,13 +1684,13 @@ struct ContentView: View {
 
 #### 点按钮次数案例：
 
-![截屏2024-07-22 23.32.38](./SwiftUI in 100 Days.assets/截屏2024-07-22 23.32.38.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-22 23.32.38.png" alt="截屏2024-07-22 23.32.38" style="zoom:50%;" />
 
 ```swift
 import SwiftUI
 
 struct ContentView: View {
-    @State private var tapCount = 0//@State：属性包装器（property wrapper），它用于声明一个可以被视图重新渲染时改变的可变状态。属性包装器允许计算属性中的闭包方法更改这个值，Apple官方推荐加上private以增加数据安全性。
+    @State private var tapCount = 0//@State：属性包装器（property wrapper），用于标记变量为状态变量，SwiftUI 会在变量变化时自动刷新 UI。这行代码在 SwiftUI 中用于创建一个 状态变量（State），它的作用是存储 可变的 UI 状态，并在其值变化时自动刷新视图。
     
     var body: some View {
         Button("Tap Count: \(tapCount)") {
@@ -1700,7 +1706,7 @@ struct ContentView: View {
 
 #### 输入框绑定变量案例：
 
-![截屏2024-07-23 19.17.36](./SwiftUI in 100 Days.assets/截屏2024-07-23 19.17.36.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-23 19.17.36.png" alt="截屏2024-07-23 19.17.36" style="zoom:50%;" />
 
 ```swift
 import SwiftUI
@@ -1722,7 +1728,7 @@ struct ContentView: View {
 
 #### 选择框绑定变量案例：
 
-![截屏2024-07-23 20.16.04](./SwiftUI in 100 Days.assets/截屏2024-07-23 20.16.04.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-23 20.16.04.png" alt="截屏2024-07-23 20.16.04" style="zoom:50%;" />
 
 ```swift
 import SwiftUI
@@ -2723,7 +2729,7 @@ struct ContentView: View {
 
 添加水印案例：
 
-![截屏2024-08-07 20.42.48](./SwiftUI in 100 Days.assets/截屏2024-08-07 20.42.48.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-07 20.42.48.png" alt="截屏2024-08-07 20.42.48" style="zoom:50%;" />
 
 ```swift
 struct WaterMark: ViewModifier {
@@ -2757,7 +2763,7 @@ struct ContentView: View {
 
 #### 使用**泛型**，自定义网格堆栈结构体：
 
-![截屏2024-08-07 22.05.13](./SwiftUI in 100 Days.assets/截屏2024-08-07 22.05.13.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-07 22.05.13.png" alt="截屏2024-08-07 22.05.13" style="zoom:50%;" />
 
 ```swift
 struct GridStack<Content: View>: View {

@@ -221,7 +221,7 @@ print(books)
 
 //4️⃣枚举
 //1.初始化枚举
-enum Weekday{
+enum Weekday {
     case Monday
     case Tuesday
     case Wednesday
@@ -229,7 +229,7 @@ enum Weekday{
     case Friday
 }
 //简写
-enum Weekend{
+enum Weekend {
     case Saturday, Sunday
 }
 
@@ -429,7 +429,8 @@ for i in 1...100 {
 ### Day7：函数、参数、元组、返回值
 
 - 函数如果只有一行return语句，可以直接省略return关键字
-- 元组和字典的区别：读取字典键值对里的值时，值是不确定的，需要有个default值。元祖不需要，并且可以同时容纳多个值。更像是json键值对。元组常用于函数返回多个值。
+- 元组和字典的区别：读取字典键值对里的值时，值是不确定的，需要有个default值。元祖不需要，并且可以同时容纳多个值。更像是json键值对。
+- 元组常用于函数返回多个值。
 - 函数名称相同，但函数参数不同，那依旧是不同的函数。类似于重载。
 - 函数参数可以起两个名字，一个给外部调用时使用，一个给内部使用。
 
@@ -468,6 +469,7 @@ func tuplePrint1() -> (firstname: String, secondname: String) {
 //    可以不写元组键
     ("Steve","Jobs")
 }
+//元组常用于函数返回多个值。
 let ceo1 = tuplePrint1()
 print("\(ceo1.firstname) \(ceo1.secondname)")
 //元组数组模式
@@ -498,7 +500,7 @@ print(rollDices(sides: 6, count: 4))
 func isUppercase(_ string: String) -> Bool {
     string == string.uppercased()
 }
-let string1 = "HELLO,WOLRD!"
+let string1 = "HELLO,WORLD!"
 print(isUppercase(string1))
 ```
 
@@ -1759,7 +1761,7 @@ struct ContentView: View {
 
 #### 完成基础框架：
 
-![截屏2024-07-24 20.49.21](./SwiftUI in 100 Days.assets/截屏2024-07-24 20.49.21.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-24 20.49.21.png" alt="截屏2024-07-24 20.49.21" style="zoom:50%;" />
 
 ```swift
 import SwiftUI
@@ -1846,7 +1848,7 @@ struct ContentView: View {
 
 ### Day19：距离转换器Convertor案例
 
-![image-20240727014506841](./SwiftUI in 100 Days.assets/image-20240727014506841.png)
+<img src="./SwiftUI in 100 Days.assets/image-20240727014506841.png" alt="image-20240727014506841" style="zoom:50%;" />
 
 #### 原始写法：
 
@@ -1886,7 +1888,7 @@ struct ContentView: View {
         case "Feet":
             outputToMetersMultiplier = 3.28084
         case "Miles":
-            outputToMetersMultiplier = 0.000621371`
+            outputToMetersMultiplier = 0.000621371
         default:
             outputToMetersMultiplier = 1.0
         }
@@ -1938,7 +1940,7 @@ struct ContentView: View {
 
 #### 优化写法：
 
-1. 无需自己写转换逻辑，调用Apple自带的测量和基础API（MeasurementFormatter和Measurement）即可完成聪明的翻译+本地化转换（根据用户所在地和使用语言选择合适爹转换单位）
+1. 无需自己写转换逻辑，调用Apple自带的测量和基础API（MeasurementFormatter和Measurement）即可完成聪明的翻译+本地化转换（根据用户所在地和使用语言选择合适的转换单位）
 2. 不仅仅可以换算距离，还可以换算质量，温度，时间
 
 ```swift

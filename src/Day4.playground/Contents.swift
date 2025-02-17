@@ -5,7 +5,7 @@ var arrayDemo1: [String] = ["apple", "microsoft"]
 var setDemo1: Set<String> = ([
     "One",
     "Two",
-    "Three",
+    "Three"
 ])
 var dictionaryDemo1: [String: Int] = [
     "one": 1,

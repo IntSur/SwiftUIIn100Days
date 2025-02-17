@@ -55,7 +55,7 @@ do {
 } catch ErrorCodes.obvious {
     print("Password too obvious!")
 } catch {
-    print(error.localizedDescription)//苹果自带的报错信息
+    print(error.localizedDescription)//Swift自带的报错信息
 }
 
 //CheckPoint4📋：自己写一个1～10000求平方根的函数

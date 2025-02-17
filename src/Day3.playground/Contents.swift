@@ -93,7 +93,7 @@ print(books)
 
 //4️⃣枚举
 //1.初始化枚举
-enum Weekday{
+enum Weekday {
     case Monday
     case Tuesday
     case Wednesday
@@ -101,7 +101,7 @@ enum Weekday{
     case Friday
 }
 //简写
-enum Weekend{
+enum Weekend {
     case Saturday, Sunday
 }
 

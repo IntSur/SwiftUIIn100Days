@@ -32,6 +32,7 @@ func tuplePrint1() -> (firstname: String, secondname: String) {
 //    可以不写元组键
     ("Steve","Jobs")
 }
+//元组常用于函数返回多个值。
 let ceo1 = tuplePrint1()
 print("\(ceo1.firstname) \(ceo1.secondname)")
 //元组数组模式

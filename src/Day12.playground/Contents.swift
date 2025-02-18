@@ -129,7 +129,7 @@ intsur.name = "IntSur" // 虽然实体是let的，但实体的成员依旧可以
 print(intsur.name)
 
 //有四种情况：类定实体定，类定实体不定，类不定实体定，类不定实体不定。
-//可以类比指针常量和常量指针的概念。因为class是引用类型，而struct是值类型。
+//可以类比指针常量和常量指针的概念。因为class是引用类型。
  
 //CheckPoint7📋
 class Animal {

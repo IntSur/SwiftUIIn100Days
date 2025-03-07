@@ -2604,7 +2604,7 @@ some View是个不透明返回值，返回给body。SwiftUI在创建body时能�
     }
 ```
 
-环境修饰符和普通修饰符：
+#### 环境修饰符和普通修饰符：
 
 环境修饰符：加在Stack闭包后的修饰符。
 
@@ -2612,7 +2612,7 @@ some View是个不透明返回值，返回给body。SwiftUI在创建body时能�
 
 环境修饰符是把修饰符修饰到子视图身上的，如果子视图也有该类的修饰符，那就以子视图的修饰符优先。（.blur这个修饰符除外）
 
-![截屏2024-08-06 22.55.34](./SwiftUI in 100 Days.assets/截屏2024-08-06 22.55.34.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-06 22.55.34.png" alt="截屏2024-08-06 22.55.34" style="zoom:50%;" />
 
 ```swift
 var body: some View {
@@ -2629,7 +2629,9 @@ var body: some View {
 
 #### 将复杂的视图拆分成一个个属性：
 
-因为SwiftUI不允许结构体内的存储属性相互调用，所以可以使用计算属性进行包装多个视图。![截屏2024-08-07 19.30.54](./SwiftUI in 100 Days.assets/截屏2024-08-07 19.30.54.png)
+因为SwiftUI不允许结构体内的存储属性相互调用，所以可以使用计算属性进行包装多个视图。
+
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-07 19.30.54.png" alt="截屏2024-08-07 19.30.54" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2678,7 +2680,7 @@ struct ContentView: View {
 
 这样的创建视图的效率极高，性能极好。
 
-![截屏2024-08-07 19.31.54](./SwiftUI in 100 Days.assets/截屏2024-08-07 19.31.54.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-07 19.31.54.png" alt="截屏2024-08-07 19.31.54" style="zoom:50%;" />
 
 ```swift
 struct blueCapsuleText: View {
@@ -2750,7 +2752,7 @@ struct WaterMark: ViewModifier {
 
 extension View {
     func waterMarkStyle() -> some View {
-        modifier(WaterMark(waterMarkText: "©️F"))
+        modifier(WaterMark(waterMarkText: ""))
     }
 }
 

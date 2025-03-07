@@ -2752,7 +2752,7 @@ struct WaterMark: ViewModifier {
 
 extension View {
     func waterMarkStyle() -> some View {
-        modifier(WaterMark(waterMarkText: ""))
+        modifier(WaterMark(waterMarkText: "©️F"))
     }
 }
 

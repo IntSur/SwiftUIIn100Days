@@ -2038,7 +2038,7 @@ struct ContentView: View {
 
 垂直堆栈、水平堆栈、Z轴堆栈。
 
-![image-20240727112607601](./SwiftUI in 100 Days.assets/image-20240727112607601.png)
+<img src="./SwiftUI in 100 Days.assets/image-20240727112607601.png" alt="image-20240727112607601" style="zoom:50%;" />
 
 ```swift
 import SwiftUI

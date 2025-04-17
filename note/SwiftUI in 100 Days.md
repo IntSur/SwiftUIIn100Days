@@ -2086,7 +2086,7 @@ struct ContentView: View {
 }
 ```
 
-或者把ZStack的frame设置成无限宽或无限高，也能做出全屏背景颜色的效果。
+或者把ZStack的frame设置成无限宽或无限高，也能做出全屏背景颜色的效果。（但要和.background()搭配着用）
 
 ```swift
 VStack {
@@ -2119,7 +2119,7 @@ struct ContentView: View {
 
 ##### 能跟随系统颜色模式变化的颜色(secondary)、安全区域、毛玻璃效果、圆角：
 
-![image-20240728124722843](./SwiftUI in 100 Days.assets/image-20240728124722843.png)
+<img src="./SwiftUI in 100 Days.assets/image-20240728124722843.png" alt="image-20240728124722843" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2140,15 +2140,29 @@ struct ContentView: View {
 }
 ```
 
+##### CGFloat:
+
+和图形有关的接口经常用CGFloat。
+
+CGFloat 是 Core Graphics 框架中定义的一种浮点数类型，和 Double、Float 类似。
+
+在64位平台上（大多数 iPhone、Mac）：等同于 Double
+
+32 位平台（旧设备）：等同于 Float。
+
+所以它本质上是一个“跨平台安全”的浮点类型，保证 Core Graphics 和 UI 框架里计算图形尺寸、坐标、动画时，结果是兼容的。
+
+
+
 #### 渐变效果：
 
 ##### 线性渐变：
 
-![截屏2024-07-28 19.58.40](./SwiftUI in 100 Days.assets/截屏2024-07-28 19.58.40.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-28 19.58.40.png" alt="截屏2024-07-28 19.58.40" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
-    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)//相比于Day19案例里的老写法，这个新API更安全，并且更方便
+    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)//相比于Day19案例里的老写法，这种泛型结构体的写法更安全，并且更方便。
     
     var body: some View {
         ZStack {
@@ -2165,12 +2179,10 @@ struct ContentView: View {
 
 ##### 多段式线性渐变：
 
-![截屏2024-07-28 20.29.42](./SwiftUI in 100 Days.assets/截屏2024-07-28 20.29.42.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-28 20.29.42.png" alt="截屏2024-07-28 20.29.42" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
-    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)
-    
     var body: some View {
         ZStack {
             LinearGradient(stops: [
@@ -2183,12 +2195,12 @@ struct ContentView: View {
 }
 ```
 
-##### 径向渐变：![截屏2024-07-28 20.44.20](./SwiftUI in 100 Days.assets/截屏2024-07-28 20.44.20.png)
+##### 径向渐变：
+
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-28 20.44.20.png" alt="截屏2024-07-28 20.44.20" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
-    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)
-    
     var body: some View {
         ZStack {
             RadialGradient(colors: [.red, .orange, .yellow, .green , .blue, .indigo], center: .center, startRadius: 2, endRadius: 400)
@@ -2200,12 +2212,10 @@ struct ContentView: View {
 
 ##### 角渐变：
 
-![截屏2024-07-28 20.47.55](./SwiftUI in 100 Days.assets/截屏2024-07-28 20.47.55.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-28 20.47.55.png" alt="截屏2024-07-28 20.47.55" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
-    let displayTemp = Measurement<UnitTemperature>(value: 38, unit: .celsius)
-    
     var body: some View {
         ZStack {
             AngularGradient(colors: [.red, .orange, .yellow, .green , .blue, .indigo, .red], center: .center, angle: Angle(degrees: 180))
@@ -2215,7 +2225,9 @@ struct ContentView: View {
 }
 ```
 
-##### 背景修饰符颜色的渐变：![截屏2024-07-28 21.36.41](./SwiftUI in 100 Days.assets/截屏2024-07-28 21.36.41.png)
+##### 背景修饰符颜色的渐变：
+
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-28 21.36.41.png" alt="截屏2024-07-28 21.36.41" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2250,7 +2262,7 @@ struct ContentView: View {
 }
 ```
 
-##### 按钮角色：
+##### 按钮角色（辅助功能）：
 
 设置不同的按钮角色，屏幕阅读器的效果也不同，这对障碍人士很重要。
 
@@ -2266,7 +2278,7 @@ struct ContentView: View {
 
 ##### SwiftUI默认的按钮样式：
 
-![截屏2024-07-29 19.57.47](./SwiftUI in 100 Days.assets/截屏2024-07-29 19.57.47.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-29 19.57.47.png" alt="截屏2024-07-29 19.57.47" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2289,7 +2301,7 @@ struct ContentView: View {
 
 ##### 自定义的按钮样式：
 
-![截屏2024-07-29 20.38.06](./SwiftUI in 100 Days.assets/截屏2024-07-29 20.38.06.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-29 20.38.06.png" alt="截屏2024-07-29 20.38.06" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2309,7 +2321,7 @@ struct ContentView: View {
 
 ##### 图片显示：
 
-![截屏2024-07-29 20.52.31](./SwiftUI in 100 Days.assets/截屏2024-07-29 20.52.31.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-29 20.52.31.png" alt="截屏2024-07-29 20.52.31" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2322,7 +2334,7 @@ struct ContentView: View {
 
 ##### SF Symbols：
 
-![截屏2024-07-29 21.21.11](./SwiftUI in 100 Days.assets/截屏2024-07-29 21.21.11.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-29 21.21.11.png" alt="截屏2024-07-29 21.21.11" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2369,9 +2381,9 @@ struct ContentView: View {
 
 #### 弹页面告警：
 
-![截屏2024-07-29 21.59.40](./SwiftUI in 100 Days.assets/截屏2024-07-29 21.59.40.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-29 21.59.40.png" alt="截屏2024-07-29 21.59.40" style="zoom:50%;" />
 
-![截屏2024-07-29 22.01.05](./SwiftUI in 100 Days.assets/截屏2024-07-29 22.01.05.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-29 22.01.05.png" alt="截屏2024-07-29 22.01.05" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2403,11 +2415,11 @@ struct ContentView: View {
 
 可以设置模拟器的明暗模式和系统字体大小
 
-![截屏2024-07-30 21.55.23](./SwiftUI in 100 Days.assets/截屏2024-07-30 21.55.23.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-30 21.55.23.png" alt="截屏2024-07-30 21.55.23" style="zoom:50%;" />
 
 #### 加入计分功能、做错时提示正确答案、8次做题结束后重新开始、做对一次就删除这次的正确答案
 
-![截屏2024-08-01 22.05.06](./SwiftUI in 100 Days.assets/截屏2024-08-01 22.05.06.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-01 22.05.06.png" alt="截屏2024-08-01 22.05.06" style="zoom:50%;" />
 
 ```swift
 import SwiftUI

@@ -27,7 +27,7 @@ print("Name.count = \(names.count) uniqeNames.count = \(uniqeNames.count)")
 print(uniqeNames.insert("Steve"))
 
 //空数组、集合、字典
-var eArray1 = Array<Int>()
+var eArray1 = Array<Int>()//泛型结构体写法
 var eArray2 = [String]()
 var eArray3: [String] = []
 

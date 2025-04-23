@@ -130,7 +130,7 @@ import Cocoa
 
 //1️⃣初始化数组
 //1.完整的初始化空数组
-var numbers = Array<Int>()
+var numbers = Array<Int>()//泛型结构体
 var singers = Array<String>()
 
 //2.简短的初始化空数组
@@ -275,7 +275,7 @@ print("Name.count = \(names.count) uniqeNames.count = \(uniqeNames.count)")
 print(uniqeNames.insert("Steve"))
 
 //空数组、集合、字典
-var eArray1 = Array<Int>()
+var eArray1 = Array<Int>()//泛型结构体写法
 var eArray2 = [String]()
 var eArray3: [String] = []
 
@@ -608,7 +608,7 @@ do {
 - 将一个函数复制给另一个函数时，不能加（）
 - 简写闭包步骤：
   1. 因为swift已经知道sorted by：会传入两个数组对应的数据类型并丢出一个bool，所以(a: String, b: String) -> Bool in...可以简写成a, b in...
-  2. 当调用sorted等函数时，可以用尾随闭包法：删掉(by：...)
+  2. 当调用sorted等函数（最后一个参数是闭包类型的函数一般都可以使用尾随闭包的写法）时，可以用尾随闭包法：删掉(by：...)
   3. swift其实并不关心变量名叫什么，只关心数据类型是什么，有几个，所以变量可以写成$0、$1，同时去掉in关键词。
 - 一般三种情况不考虑使用$0 $1的变量简写形式：
   1. 参数在两个以上 $0 $1 $2 $3
@@ -907,11 +907,11 @@ print(player1)
   1. private：外部不能使用结构体内的东西
   2. fileprivate：外部不能使用文件内的东西
   3. public：所有人都能用
-  4. private(set)：外部能读取结构体内的东西，但不能写  
+  4. private(set)：外部能读取结构体内的东西，但不能写
 
 - 结构体static：给结构体属性、方法加上static前缀关键词，那该属性、方法就成为静态可共享的成员，该结构体的所有实体都能用到它。同时也不用必须先创建实体，才能再访问到成员。所以不用mutating关键字，结构体内的static属性就能被修改。
 
-- static成员无法访问非static成员，非static成员可以访问static成员
+- static成员无法访问非static成员，非static成员可以访问static成员。
 
   <img src="./SwiftUI in 100 Days.assets/截屏2024-07-14 15.55.01.png" alt="截屏2024-07-14 15.55.01" style="zoom: 25%;" />
 

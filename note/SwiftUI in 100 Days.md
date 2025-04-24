@@ -2348,7 +2348,7 @@ struct ContentView: View {
 
 ##### 图片和SF Symbols组合：
 
-![截屏2024-07-29 21.38.48](./SwiftUI in 100 Days.assets/截屏2024-07-29 21.38.48.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-07-29 21.38.48.png" alt="截屏2024-07-29 21.38.48" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
@@ -2866,7 +2866,7 @@ struct FlagImageView: View {
 
 该案例已基于视频课中的案例进行优化，实现了现实生活中的石头剪刀布，并做得更公平更随机性。
 
-![](./SwiftUI in 100 Days.assets/截屏2024-08-08 23.14.53.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-08 23.14.53.png" style="zoom:50%;" />
 
 ```swift
 import SwiftUI
@@ -2974,6 +2974,8 @@ struct ContentView: View {
 ### Day26：项目四第一部分
 
 #### Stepper()
+
+<img src="./SwiftUI in 100 Days.assets/截屏2025-04-24 14.44.32.png" alt="截屏2025-04-24 14.44.32" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {

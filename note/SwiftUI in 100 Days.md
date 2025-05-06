@@ -2989,12 +2989,16 @@ struct ContentView: View {
 
 #### DatePicker()
 
+<img src="./SwiftUI in 100 Days.assets/截屏2025-05-01 15.38.08.png" alt="截屏2025-05-01 15.38.08" style="zoom:50%;" />
+
 ```swift
+@State private var dateInfo = Date()
+
 DatePicker("Select a date", selection: $dateInfo)
 						.labelsHidden()//去掉时间选择器的label，但又不影响辅助旁白
 
-DatePicker("Select a date", selection: $dateInfo, displayedComponents: .hourAndMinute)//只显示小时和分钟
-            .labelsHidden()
+DatePicker("Select a date", selection: $dateInfo, displayedComponents: .hourAndMinute)
+            .labelsHidden()//只显示小时和分钟
 
 DatePicker("", selection: $dateInfo, in: dateInfo..., displayedComponents: .date)
             .labelsHidden()//in后面加的单边范围
@@ -3153,11 +3157,11 @@ struct ContentView: View {
 
 Tip：导入的模型文件名称决定了代码内模型类的名称
 
-![截屏2024-08-13 21.52.11](./SwiftUI in 100 Days.assets/截屏2024-08-13 21.52.11.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-13 21.52.11.png" alt="截屏2024-08-13 21.52.11" style="zoom:50%;" />
 
 #### 调用CoreML API
 
-![截屏2024-08-13 23.21.58](./SwiftUI in 100 Days.assets/截屏2024-08-13 23.21.58.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-13 23.21.58.png" alt="截屏2024-08-13 23.21.58" style="zoom:50%;" />
 
 ```swift
 import SwiftUI
@@ -3341,7 +3345,7 @@ Picker("cups", selection: $coffeeAmount) {
 - form能接受用户输入，list不能。
 - form不能处理动态数据，list能。
 
-![截屏2024-08-14 21.36.06](./SwiftUI in 100 Days.assets/截屏2024-08-14 21.36.06.png)
+<img src="./SwiftUI in 100 Days.assets/截屏2024-08-14 21.36.06.png" alt="截屏2024-08-14 21.36.06" style="zoom:50%;" />
 
 ```swift
 struct ContentView: View {
